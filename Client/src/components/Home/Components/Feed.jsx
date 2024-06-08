@@ -11,10 +11,10 @@ const Feed = () => {
       <div className=" flex items-start  flex-col w-full  ">
         <div className=" text-lg font-semibold flex mt-5 bg-black/30  backdrop-blur-md flex-col  sticky top-5  w-full items-center  justify-center">
           <div className=" flex w-full justify-around">
-          <button className="  ">For You </button>
-          <button className="  ">Following</button>
+            <button className="  ">For You </button>
+            <button className="  ">Following</button>
           </div>
-        <div className=" bg-[#2f3336] mt-3 h-[1px] w-full " />
+          <div className=" bg-[#2f3336] mt-3 h-[1px] w-full " />
         </div>
         <NewPost />
         <div className=" bg-[#2f3336] h-[1px] w-full " />
@@ -28,7 +28,6 @@ const Feed = () => {
 
         <div className=" bg-[#2f3336] h-[1px] w-full " />
       </div>
-      
     </>
   );
 };
