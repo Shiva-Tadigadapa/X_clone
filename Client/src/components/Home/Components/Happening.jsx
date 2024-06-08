@@ -3,7 +3,7 @@ import { IoSearch } from "react-icons/io5";
 const Happening = () => {
   return (
     <>
-      <div className=" py-2 sticky top-0  px-6 w-[25%]">
+      <div className=" py-2 sticky top-0 border-l border-[#2f3336]  h-screen px-6 w-[25%]">
         <div className=" ">
           <div className="bg-[#202327] flex items-center justify-start  mt-2 rounded-full  w-[18rem] h-11 px-4 gap-3 ">
             <IoSearch className="text-2xl text-gray-500" />
@@ -19,12 +19,16 @@ const Happening = () => {
           <div className=" flex flex-col gap-3  ">
             <div className="    flex flex-col items-start justify-start  ">
               <p className=" text-sm -mb-1 text-[#71767b]">Trending in India</p>
-              <h1 className="font-semibold text-[1.05rem]">Rest in peace sir</h1>
+              <h1 className="font-semibold text-[1.05rem]">
+                Rest in peace sir
+              </h1>
               <p className=" text-sm text-[#71767b]">41.4k posts</p>
             </div>
             <div className="    flex flex-col items-start justify-start  ">
               <p className=" text-sm -mb-1 text-[#71767b]">Trending in India</p>
-              <h1 className="font-semibold text-[1.05rem]">#NeetUG24Controversy</h1>
+              <h1 className="font-semibold text-[1.05rem]">
+                #NeetUG24Controversy
+              </h1>
               <p className=" text-sm text-[#71767b]">51.4k posts</p>
             </div>
             <div className="    flex flex-col items-start justify-start  ">

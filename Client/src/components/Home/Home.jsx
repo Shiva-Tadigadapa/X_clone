@@ -7,13 +7,11 @@ const Home = () => {
   return (
     <>
       <div className=" flex justify-between h-full items-start">
-        <div className=" h-screen  sticky top-0">
+        <div className=" h-screen  border-[#2f3336] border-r sticky top-0">
           <SideSection />
         </div>
-        <div className=" bg-[#2f3336] h-screen w-[1px] " />
-
         <Feed />
-        <hr className="w-[1px] h-screen bg-[#2f3336]" />
+        {/* <hr className="w-[1px] h-screen bg-[#2f3336]" /> */}
         <Happening />
       </div>
     </>
