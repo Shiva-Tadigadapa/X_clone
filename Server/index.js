@@ -1,16 +1,18 @@
+// server.js or index.js
+
 import express from 'express';
 import { OAuth2Client } from 'google-auth-library';
-import dotenv from 'dotenv';
+import bodyParser from 'body-parser';
 import cors from 'cors';
 
-dotenv.config();
-cors();
-
-
 const app = express();
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const PORT = 3000;
+const CLIENT_ID = '199764480225-1npvvugr55pmnehika7e2dnkmpv42c01.apps.googleusercontent.com';
 
-app.use(express.json());
+const client = new OAuth2Client(CLIENT_ID);
+
+app.use(cors());
+app.use(bodyParser.json());
 
 app.post('/api/auth/google', async (req, res) => {
     const { token } = req.body;
@@ -18,21 +20,21 @@ app.post('/api/auth/google', async (req, res) => {
     try {
         const ticket = await client.verifyIdToken({
             idToken: token,
-            audience: process.env.GOOGLE_CLIENT_ID,
+            audience: CLIENT_ID,
         });
         const payload = ticket.getPayload();
-        const userId = payload['sub'];
+        const { name, email, picture } = payload;
 
-        // Find or create the user in your database
-        // For example:
-        // const user = await User.findOrCreate({ googleId: userId });
+        // Here you can create or update the user in your database
+        // For now, we will just return the user data
 
-        res.status(200).json({ message: 'User authenticated', user: payload });
+        res.status(200).json({ name, email, picture });
     } catch (error) {
-        res.status(400).json({ error: 'Token verification failed' });
+        console.error('Error verifying token:', error);
+        res.status(400).json({ error: 'Invalid token' });
     }
 });
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });

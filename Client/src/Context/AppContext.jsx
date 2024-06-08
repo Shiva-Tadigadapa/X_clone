@@ -1,9 +1,19 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState ,useEffect} from "react";
 
 const MainDashContext = createContext();
 
 export const MainDashProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState("false ");
+  const [authUser, setAuthUser] = useState(() => {
+    // Initialize user state from local storage if available
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
+  useEffect(() => {
+    // Save user data to local storage whenever it changes
+    localStorage.setItem("user", JSON.stringify(authUser));
+  }, [authUser]);
 
   // const [managetab, setManagetab] = useState("overview");
 
@@ -12,6 +22,8 @@ export const MainDashProvider = ({ children }) => {
       value={{
         isDarkMode,
         setIsDarkMode,
+        authUser,
+        setAuthUser,
       }}
     >
       {children}
