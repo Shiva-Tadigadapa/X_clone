@@ -178,9 +178,9 @@ export const verifyOtp = async (req, res) => {
 
             // Hash the password
             const hashedPassword = await bcrypt.hash(password, 10);
-
+            const handle = username.toLowerCase().replace(/ /g, '');
             // Create a new user with hashed password
-            const newUser = new UserModel({ email, password: hashedPassword, username, profilePicture});
+            const newUser = new UserModel({ email, password: hashedPassword, username, profilePicture,handle});
             await newUser.save();
 
             // Retrieve the user
@@ -236,7 +236,7 @@ export const verifyToken = async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'Token verification successful',
-            decoded: { ...decoded, name: user.username , picture: user.profilePicture},
+            decoded: { ...decoded, name: user.username , picture: user.profilePicture, handle: user.handle},
             username: user.username,
         });
     } catch (error) {

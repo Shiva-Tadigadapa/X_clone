@@ -27,6 +27,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/post/new" element={<Home Section={"newPost"}/>} />
           <Route path="/profile/:username" element={<Home  Section={"profile"}/>} />
+          <Route path="/:handle/post/:postId" element={<Home Section={"Post"} />} />
         </Routes>
       </div>
     </>

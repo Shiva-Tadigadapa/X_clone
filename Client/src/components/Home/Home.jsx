@@ -8,6 +8,7 @@ import { IoClose } from "react-icons/io5";
 import Profile from "../Profile/Profile";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import PostPage from "../PostDetails/PostPage";
 
 const Home = ({ Section }) => {
   const [posts, setPosts] = useState([]);
@@ -37,6 +38,8 @@ const Home = ({ Section }) => {
         </div>
         {Section && Section === "profile" ? (
           <Profile posts={posts} />
+        ) : Section && Section === "Post" ? (
+          <PostPage />
         ) : (
           <Feed Section={Section} posts={posts} />
         )}

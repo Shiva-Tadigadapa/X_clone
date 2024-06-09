@@ -1,14 +1,11 @@
-import { time, timeStamp } from "console";
 import mongoose from "mongoose";
-import { type } from "os";
 
 const { Schema } = mongoose;
-
 
 const postSchema = new Schema({
     author: {
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'User', // Assuming your user model is named 'User'
         required: true,
     },
     content: {
@@ -21,12 +18,12 @@ const postSchema = new Schema({
     },
     likes: [{
         type: Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'User', // Assuming your user model is named 'User'
     }],
-    Comments: [{
+    comments: [{ // Corrected typo from 'Comments' to 'comments'
         user: {
             type: Schema.Types.ObjectId,
-            ref: ' User',
+            ref: 'User', // Assuming your user model is named 'User'
             required: true,
         },
         comment: {
@@ -47,7 +44,7 @@ const postSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-}, { timestamps: true, })
+}, { timestamps: true });
 
 postSchema.index({
     author: 1,

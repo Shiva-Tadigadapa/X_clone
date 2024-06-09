@@ -38,10 +38,12 @@ const SideSection = () => {
             <IoBookmarksOutline className="text-2xl" />
             Bookmarks
           </button>
+          <Link to={`/${authUser.handle}`} >
           <button className=" flex  items-center gap-3 text-xl ">
             <IoPersonOutline className="text-2xl" />
             Profile
           </button>
+          </Link>
           <button className=" flex  items-center gap-3 text-xl ">
             {" "}
             <CiCircleMore className="text-2xl" />
@@ -61,7 +63,7 @@ const SideSection = () => {
           />
           <div>
             <h1 className="text-md font-semibold">{authUser?.name}</h1>
-            <h2 className="text-gray-500 text-sm">@shivatadigadapa</h2>
+            <h2 className="text-gray-500 text-sm">@{authUser?.handle}</h2>
           </div>
         </div>
       </div>

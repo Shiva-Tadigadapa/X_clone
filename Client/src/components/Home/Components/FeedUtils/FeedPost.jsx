@@ -99,8 +99,8 @@ const FeedPost = ({ post, userProfile }) => {
           <div className="items-center flex gap-2">
             <Link
               to={`/profile/${
-                (post.author && post.author.username) ||
-                (userProfile && userProfile.username)
+                (post.author && post.author.handle) ||
+                (userProfile && userProfile.handle)
               }`}
             >
               <h1 className="text-lg font-semibold">
@@ -110,19 +110,23 @@ const FeedPost = ({ post, userProfile }) => {
             </Link>
             <Link
               to={`/profile/${
-                (post.author && post.author.username) ||
-                (userProfile && userProfile.username)
+                (post.author && post.author.handle) ||
+                (userProfile && userProfile.handle)
               }`}
             >
               <p className="text-gray-500">
                 @
-                {(post.author && post.author.username) ||
-                  (userProfile && userProfile.username)}
+                {(post.author && post.author.handle) ||
+                  (userProfile && userProfile.handle)}
               </p>
             </Link>
           </div>
-          <p>{post.content}</p>
-          {renderImages()}
+          <Link to={`/${post.author && post.author.handle}/post/${post._id}`}>
+            <div>
+              <p className=" text-lg mt-1">{post?.content}</p>
+              {renderImages()}
+            </div>
+          </Link>
         </div>
       </div>
       <div className="text-gray-500 flex justify-around ml-3 w-full">
