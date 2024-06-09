@@ -65,34 +65,84 @@ export const profile = async (req, res) => {
 
 
 export const getPost = async (req, res) => {
-    const { postId, handle } = req.params;
+    const { postId } = req.params;
+    // console.log('req.params:', req.params)
 
     try {
-        // Aggregate pipeline to fetch post details along with author's details
-        const postWithAuthor = await PostModel.aggregate([
-            { $match: { _id: new ObjectId(postId) } }, // Convert postId to ObjectId
+        // Aggregate pipeline to fetch post details along with author's details and comments
+        const postWithComments = await PostModel.aggregate([
+            { $match: { _id: new ObjectId(postId) } }, // Match post by ID
             {
                 $lookup: {
                     from: 'users',
-                    let: { authorId: '$author' }, // Use let to capture the author ID
-                    pipeline: [
-                        { $match: { $expr: { $eq: ['$_id', '$$authorId'] } } }, // Match users by author ID
-                        { $project: { password: 0 } } // Exclude password field from the result
-                    ],
+                    localField: 'author',
+                    foreignField: '_id',
                     as: 'authorDetails'
                 }
             },
-            { $unwind: '$authorDetails' } // Deconstruct the authorDetails array
+            { $unwind: '$authorDetails' }, // Deconstruct the authorDetails array
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'comments.user',
+                    foreignField: '_id',
+                    as: 'commentUsers'
+                }
+            },
+            {
+                $addFields: {
+                    comments: {
+                        $map: {
+                            input: '$comments',
+                            as: 'comment',
+                            in: {
+                                $mergeObjects: [
+                                    '$$comment',
+                                    {
+                                        userDetails: {
+                                            $arrayElemAt: [
+                                                '$commentUsers',
+                                                { $indexOfArray: ['$commentUsers._id', '$$comment.user'] },
+                                            ],
+                                        },
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    authorDetails: {
+                        $cond: {
+                            if: { $isArray: '$authorDetails' },
+                            then: {
+                                $mergeObjects: [
+                                    '$authorDetails',
+                                    { password: '$$REMOVE' } // Exclude the password field
+                                ]
+                            },
+                            else: '$authorDetails'
+                        }
+                    },
+                    content: 1,
+                    mediaUrl: 1,
+                    likes: 1,
+                    comments: 1
+                }
+            }
         ]);
 
-        if (!postWithAuthor || postWithAuthor.length === 0) {
+        // Check if postWithComments is empty or post not found
+        if (!postWithComments || postWithComments.length === 0) {
             return res.status(404).json({ success: false, message: "Post not found" });
         }
 
         // Send the combined data back to the frontend
         res.status(200).json({
             success: true,
-            post: postWithAuthor[0],
+            post: postWithComments[0],
         });
     } catch (error) {
         console.error("Error fetching post and user profile:", error);
@@ -100,17 +150,31 @@ export const getPost = async (req, res) => {
     }
 };
 
+
+
+
 export const createComment = async (req, res) => {
     const { postId, handle } = req.params;
-    const { userId, comment } = req.body;
+    const { userId, content, images } = req.body;
+    console.log('req.body:', req.body)
+    console.log('req.params:', req.params)
+
 
     try {
+        const mediaUrl = images.map((image) => image.url);
         const post = await PostModel.findById(postId);
+        console.log('post:', post)
         if (!post) {
             return res.status(404).json({ success: false, message: "Post not found" });
         }
 
-        post.comments.push({ user: userId, comment });
+        const newComment = {
+            user: userId,
+            comment: content,
+            mediaUrl: mediaUrl,
+        };
+
+        post.comments.push(newComment);
         await post.save();
         res.status(200).json({ success: true, message: "Comment added successfully", post });
     } catch (error) {

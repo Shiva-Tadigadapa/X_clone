@@ -10,6 +10,8 @@ import { Link } from "react-router-dom";
 const FeedPost = ({ post, userProfile }) => {
   const commentCount = post.comments ? post.comments.length : 0;
   const likeCount = post.likes ? post.likes.length : 0;
+  console.log("post:", post);
+
   // console.log("post:",  post.likes);
 
   // console.log('userProfile:', userProfile.username);
@@ -121,7 +123,12 @@ const FeedPost = ({ post, userProfile }) => {
               </p>
             </Link>
           </div>
-          <Link to={`/${post.author && post.author.handle}/post/${post._id}`}>
+          <Link
+            to={`/${
+              (post.author && post.author.handle) ||
+              (userProfile && userProfile.handle)
+            }/post/${post._id}`}
+          >
             <div>
               <p className=" text-lg mt-1">{post?.content}</p>
               {renderImages()}

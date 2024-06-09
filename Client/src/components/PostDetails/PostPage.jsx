@@ -17,7 +17,8 @@ import { RiCalendarScheduleLine } from "react-icons/ri";
 import { CgOptions } from "react-icons/cg";
 import { MdOutlineGifBox } from "react-icons/md";
 import { PiImageSquare } from "react-icons/pi";
-
+import FeedPost from "../Home/Components/FeedUtils/FeedPost";
+ import Comments from "./Comments";
 const PostPage = () => {
   const { handle, postId } = useParams();
   const { authUser } = useMainDashContext();
@@ -183,7 +184,9 @@ const PostPage = () => {
         <div className="flex items-start  flex-col justify-center ">
           <div className="flex items-start gap-3">
             <img
-              src={post && post.author && post.authorDetails.profilePicture}
+              src={
+                post && post.authorDetails && post.authorDetails.profilePicture
+              }
               className="h-10 w-10 mt-2 rounded-full"
               alt="profile"
             />
@@ -300,6 +303,15 @@ const PostPage = () => {
               </div>
             </div>
           </div>
+        </div>
+        <div className=" w-full  h-[1px] bg-gray-600 " />
+        <div className=" w-full">
+           {
+            post.comments &&
+            post.comments.map((comment) => (
+              <Comments key={comment._id} post={comment} />
+            ))
+           }
         </div>
       </div>
     </>

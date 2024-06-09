@@ -35,6 +35,9 @@ const postSchema = new Schema({
             type: Date,
             default: Date.now,
         },
+        mediaUrl: {
+            type: [String],
+        },
     }],
     createdAt: {
         type: Date,

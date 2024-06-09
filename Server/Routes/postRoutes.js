@@ -9,7 +9,7 @@ postRoutes.post('/create', createPost);
 postRoutes.get('/getallposts', getallposts);
 postRoutes.get('/profile/:username', profile);
 postRoutes.get('/:postId/:handle', getPost);
-postRoutes.post('/comment/postId/:handle', createComment);
+postRoutes.post('/comment/:postId/:handle', createComment);
 // postRoutes.get('/get', getPosts);
 
 
