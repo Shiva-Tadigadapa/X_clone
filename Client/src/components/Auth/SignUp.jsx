@@ -58,6 +58,7 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
         {
           otp: otp,
           CreateAccount,
+           maleProfile :`https://avatar.iran.liara.run/public/boy?username=${CreateAccount.username}`,
         }
       );
       const { token, user } = response.data;

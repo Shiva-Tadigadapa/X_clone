@@ -26,7 +26,9 @@ const userSchema = new Schema({
     location: String,
     website: String,
     birthDate: Date,
-    profilePicture: String,
+    profilePicture: {
+        type: String,
+    },
     coverPhoto: String,
     followers: [{
         type: Schema.Types.ObjectId,

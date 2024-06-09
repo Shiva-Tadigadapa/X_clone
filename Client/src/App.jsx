@@ -26,6 +26,7 @@ function App() {
           <Route path="/login" element={<SignIn CraModal={loginModal} type={"login"} handleCraModalUpdate={handleLoginModalUpdate}/>} />
           <Route path="/home" element={<Home />} />
           <Route path="/post/new" element={<Home Section={"newPost"}/>} />
+          <Route path="/profile/:username" element={<Home  Section={"profile"}/>} />
         </Routes>
       </div>
     </>

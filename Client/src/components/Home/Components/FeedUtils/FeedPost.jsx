@@ -5,6 +5,7 @@ import { FiHeart } from "react-icons/fi";
 import { IoStatsChartSharp } from "react-icons/io5";
 import { IoBookmarksOutline } from "react-icons/io5";
 import { FiShare } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
 const FeedPost = ({ post }) => {
   const commentCount = post.comments ? post.comments.length : 0;
@@ -16,14 +17,23 @@ const FeedPost = ({ post }) => {
     if (mediaUrl.length === 1) {
       return (
         <div className="w-full">
-          <img src={mediaUrl[0]} className="rounded-3xl w-full mt-4" alt="media" />
+          <img
+            src={mediaUrl[0]}
+            className="rounded-3xl w-full mt-4"
+            alt="media"
+          />
         </div>
       );
     } else if (mediaUrl.length === 2) {
       return (
         <div className="flex gap-2 w-full mt-4">
           {mediaUrl.map((url, index) => (
-            <img key={index} src={url} className="rounded-3xl w-1/2 object-cover" alt="media" />
+            <img
+              key={index}
+              src={url}
+              className="rounded-3xl w-1/2 object-cover"
+              alt="media"
+            />
           ))}
         </div>
       );
@@ -31,11 +41,23 @@ const FeedPost = ({ post }) => {
       return (
         <div className="flex gap-2 w-full mt-4">
           <div className="w-1/2">
-            <img src={mediaUrl[0]} className="rounded-3xl h-full object-cover" alt="media" />
+            <img
+              src={mediaUrl[0]}
+              className="rounded-3xl h-full object-cover"
+              alt="media"
+            />
           </div>
           <div className="w-1/2 flex flex-col gap-2">
-            <img src={mediaUrl[1]} className="rounded-3xl w-full object-cover" alt="media" />
-            <img src={mediaUrl[2]} className="rounded-3xl w-full object-cover" alt="media" />
+            <img
+              src={mediaUrl[1]}
+              className="rounded-3xl w-full object-cover"
+              alt="media"
+            />
+            <img
+              src={mediaUrl[2]}
+              className="rounded-3xl w-full object-cover"
+              alt="media"
+            />
           </div>
         </div>
       );
@@ -43,7 +65,12 @@ const FeedPost = ({ post }) => {
       return (
         <div className="grid grid-cols-2 gap-2 w-full mt-4">
           {mediaUrl.map((url, index) => (
-            <img key={index} src={url} className="rounded-3xl w-full object-cover" alt="media" />
+            <img
+              key={index}
+              src={url}
+              className="rounded-3xl w-full object-cover"
+              alt="media"
+            />
           ))}
         </div>
       );
@@ -54,14 +81,18 @@ const FeedPost = ({ post }) => {
     <div className="flex flex-col border-b w-full border-[#2f3336] items-start py-5 gap-3 px-6">
       <div className="flex items-start justify-center gap-3">
         <img
-          src={post.author.picture}
+          src={post.author.profilePicture}
           className="h-10 w-10 mt-2 rounded-full"
           alt="profile"
         />
         <div className="flex flex-col items-start justify-center">
           <div className="items-center flex gap-2">
-            <h1 className="text-lg font-semibold">{post.author.username}</h1>
-            <p className="text-gray-500">@{post.author.email}</p>
+            <Link to={`/profile/${post.author.username}`}>
+              <h1 className="text-lg font-semibold">{post.author.username}</h1>
+            </Link>
+            <Link to={`/profile/${post.author.username}`}>
+              <p className="text-gray-500">@{post.author.email}</p>
+            </Link>
           </div>
           <p>{post.content}</p>
           {renderImages()}

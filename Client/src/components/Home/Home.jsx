@@ -5,6 +5,7 @@ import SideSection from "./Components/SideSection";
 import NewPost from "./Components/FeedUtils/NewPost";
 import { Link } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
+import Profile from "../Profile/Profile";
 
 const Home = ({ Section }) => {
   return (
@@ -17,7 +18,11 @@ const Home = ({ Section }) => {
         <div className="h-screen border-[#2f3336] border-r sticky top-0">
           <SideSection />
         </div>
-        <Feed Section={Section} />
+        {Section && Section === "profile" ? (
+          <Profile/>
+        ) : (
+          <Feed Section={Section} />
+        )}
         <Happening />
       </div>
 

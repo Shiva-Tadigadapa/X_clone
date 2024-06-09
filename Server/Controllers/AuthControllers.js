@@ -154,8 +154,10 @@ export const sendOtp = async (req, res) => {
 
 
 export const verifyOtp = async (req, res) => {
-    const { CreateAccount, otp } = req.body;
+    const { CreateAccount, otp ,maleProfile} = req.body;
     const { email, password, username } = CreateAccount;
+    const profilePicture = maleProfile;
+    console.log(profilePicture)
 
     try {
         // Check if the user already exists by email or username
@@ -178,7 +180,7 @@ export const verifyOtp = async (req, res) => {
             const hashedPassword = await bcrypt.hash(password, 10);
 
             // Create a new user with hashed password
-            const newUser = new UserModel({ email, password: hashedPassword, username });
+            const newUser = new UserModel({ email, password: hashedPassword, username, profilePicture});
             await newUser.save();
 
             // Retrieve the user
@@ -234,7 +236,7 @@ export const verifyToken = async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'Token verification successful',
-            decoded: { ...decoded, name: user.username },
+            decoded: { ...decoded, name: user.username , picture: user.profilePicture},
             username: user.username,
         });
     } catch (error) {
