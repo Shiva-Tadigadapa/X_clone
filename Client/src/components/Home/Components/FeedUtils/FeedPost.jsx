@@ -7,12 +7,16 @@ import { IoBookmarksOutline } from "react-icons/io5";
 import { FiShare } from "react-icons/fi";
 import { Link } from "react-router-dom";
 
-const FeedPost = ({ post }) => {
+const FeedPost = ({ post, userProfile }) => {
   const commentCount = post.comments ? post.comments.length : 0;
   const likeCount = post.likes ? post.likes.length : 0;
+  // console.log("post:",  post.likes);
 
+  // console.log('userProfile:', userProfile.username);
   const renderImages = () => {
     const { mediaUrl } = post;
+
+    if (!mediaUrl || mediaUrl.length === 0) return null;
 
     if (mediaUrl.length === 1) {
       return (
@@ -76,22 +80,45 @@ const FeedPost = ({ post }) => {
       );
     }
   };
-
+  const setHandle = (username) => {
+    return username.split(" ").join("").toLowerCase();
+  };
   return (
     <div className="flex flex-col border-b w-full border-[#2f3336] items-start py-5 gap-3 px-6">
       <div className="flex items-start justify-center gap-3">
         <img
-          src={post.author.profilePicture}
+          src={
+            (post.author && post.author.profilePicture) ||
+            (userProfile && userProfile.profilePicture) ||
+            ""
+          }
           className="h-10 w-10 mt-2 rounded-full"
           alt="profile"
         />
         <div className="flex flex-col items-start justify-center">
           <div className="items-center flex gap-2">
-            <Link to={`/profile/${post.author.username}`}>
-              <h1 className="text-lg font-semibold">{post.author.username}</h1>
+            <Link
+              to={`/profile/${
+                (post.author && post.author.username) ||
+                (userProfile && userProfile.username)
+              }`}
+            >
+              <h1 className="text-lg font-semibold">
+                {(post.author && post.author.username) ||
+                  (userProfile && userProfile.username)}
+              </h1>
             </Link>
-            <Link to={`/profile/${post.author.username}`}>
-              <p className="text-gray-500">@{post.author.email}</p>
+            <Link
+              to={`/profile/${
+                (post.author && post.author.username) ||
+                (userProfile && userProfile.username)
+              }`}
+            >
+              <p className="text-gray-500">
+                @
+                {(post.author && post.author.username) ||
+                  (userProfile && userProfile.username)}
+              </p>
             </Link>
           </div>
           <p>{post.content}</p>

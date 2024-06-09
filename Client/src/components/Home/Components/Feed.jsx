@@ -4,22 +4,11 @@ import NewPost from "./FeedUtils/NewPost";
 import FeedPost from "./FeedUtils/FeedPost";
 import axios from "axios";
 
-const Feed = ({ Section }) => {
+const Feed = ({ Section,posts }) => {
   const { authUser } = useMainDashContext();
-  const [posts, setPosts] = useState([]);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const response = await axios.get("http://localhost:3000/post/getallposts");
-        setPosts(response.data.posts);
-      } catch (error) {
-        console.error("Error fetching posts:", error);
-      }
-    };
 
-    fetchPosts();
-  }, []);
+
 
   return (
     <div className={`flex items-start flex-col w-full`}>

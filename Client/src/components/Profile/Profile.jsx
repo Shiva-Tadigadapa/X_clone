@@ -5,15 +5,68 @@ import { GrLocation } from "react-icons/gr";
 import { RiLink } from "react-icons/ri";
 import { PiBalloon } from "react-icons/pi";
 import { PiCalendarDotsDuotone } from "react-icons/pi";
+import Feed from "../Home/Components/Feed";
+import FeedPost from "../Home/Components/FeedUtils/FeedPost";
+import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
-const Profile = () => {
+const Profile = ({}) => {
+  const { username } = useParams();
+  const [userProfile, setUserProfile] = useState(null);
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `http://localhost:3000/post/profile/${username}`
+        );
+
+        if (response.data.success) {
+          setUserProfile(response.data.userProfile);
+          setPosts(response.data.userProfile.posts);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [username]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  if (!userProfile) {
+    return <div>No profile found</div>;
+  }
+  // if (error) return <div>Error: {error.message}</div>;
+  const setHandle = (username) => {
+    return username.split(" ").join("").toLowerCase();
+  };
   return (
     <>
       <div>
-        <div className=" p-4 justify-start sticky top-0  items-center gap-8 flex">
-          <FaArrowLeft className="text-xl" />
-          <div>
-            <h1 className=" text-xl font-bold">Narendra Modi</h1>
+        <div className=" px-4 py-2 justify-start  sticky top-0  bg-black/70 backdrop-blur-md items-center gap-8 flex">
+          <Link to="/home">
+            <FaArrowLeft className="text-xl" />
+          </Link>
+          <div className=" flex flex-col gap-1">
+            <h1 className=" text-xl font-bold">
+              {userProfile && userProfile.username}
+            </h1>
             <h2 className=" text-xs">42.7K posts</h2>
           </div>
         </div>
@@ -24,7 +77,7 @@ const Profile = () => {
           <div className="  px-4 flex items-end justify-between -mt-20 rounded-full  ">
             <img
               className="h-36 w-36 rounded-full  border-4 border-black"
-              src="https://pbs.twimg.com/profile_images/1700051019525488640/VRqy0bTE_400x400.jpg"
+              src={userProfile && userProfile.profilePicture}
               alt=""
             />
             <div className="flex  items-center gap-2  mb-2 ">
@@ -37,8 +90,12 @@ const Profile = () => {
         </div>
         <div className=" p-4 flex flex-col gap-3">
           <div className="leading-5">
-            <h1 className=" text-xl font-bold ">Narendra Modi</h1>
-            <h2 className="   text-gray-500  font-semibold">@narendramodi</h2>
+            <h1 className=" text-xl font-bold ">
+              {userProfile && userProfile.username}
+            </h1>
+            <h2 className="   text-gray-500  font-semibold">
+              @{setHandle(userProfile && userProfile.username)}
+            </h2>
           </div>
           <h2 className=" font-semibold">Prime Minister of India</h2>
           <div className=" flex justify-between px-2">
@@ -69,7 +126,17 @@ const Profile = () => {
               Followers
             </h1>
           </div>
+          <div className=" flex  w-full justify-around gap-5 mt-3   ">
+            <button className=" font-semibold  text-lg ">Posts</button>
+            <button className=" font-semibold  text-lg ">Replies</button>
+            <button className=" font-semibold  text-lg ">Media</button>
+            <button className=" font-semibold  text-lg ">Likes</button>
+          </div>
         </div>
+        <div className="w-full -mt-2 h-[0.5px] bg-gray-500" />
+        {posts.map((post) => (
+          <FeedPost key={post._id} post={post} userProfile={userProfile} />
+        ))}
       </div>
     </>
   );

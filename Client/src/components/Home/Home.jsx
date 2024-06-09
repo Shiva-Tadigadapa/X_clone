@@ -6,8 +6,25 @@ import NewPost from "./Components/FeedUtils/NewPost";
 import { Link } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
 import Profile from "../Profile/Profile";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 const Home = ({ Section }) => {
+  const [posts, setPosts] = useState([]);
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/post/getallposts"
+        );
+        setPosts(response.data.posts);
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+
+    fetchPosts();
+  }, []);
   return (
     <>
       <div
@@ -19,9 +36,9 @@ const Home = ({ Section }) => {
           <SideSection />
         </div>
         {Section && Section === "profile" ? (
-          <Profile/>
+          <Profile posts={posts} />
         ) : (
-          <Feed Section={Section} />
+          <Feed Section={Section} posts={posts} />
         )}
         <Happening />
       </div>
