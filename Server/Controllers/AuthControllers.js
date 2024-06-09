@@ -45,9 +45,9 @@ export const googleAuth = async (req, res) => {
             message: "Google authentication successful",
             user: {
                 userId: user._id,
-                name: user.name,
+                name: payload.name,
                 email: user.email,
-                picture: user.profilePicture,
+                picture: payload.picture,
             },
         });
     } catch (error) {
@@ -116,10 +116,17 @@ export const sendOtp = async (req, res) => {
 
     try {
         const existingUser = await UserModel.findOne({ username });
+        const existingEmail = await UserModel.findOne({ email });
         if (existingUser) {
             return res.status(401).json({
                 success: false,
                 message: 'Username already exists. Please choose a different username.',
+            });
+        }
+        if (existingEmail) {
+            return res.status(401).json({
+                success: false,
+                message: 'Email already exists. Please choose a different email.',
             });
         }
         const existingOtp = await OtpModel.findOne({ email });

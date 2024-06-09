@@ -16,6 +16,7 @@ const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
   const [user, setUser] = useState(null);
   useEffect(() => {
     // Check for user data in localStorage on component mount
+    console.log("Checking for user data in localStorage...,",authUser)
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -33,9 +34,10 @@ const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
 
       if (res.status === 200) {
         // Backend authentication successful
-        localStorage.setItem("user", JSON.stringify(userObject));
-        setUser(userObject);
-        setAuthUser(userObject);
+        console.log("Backend authentication successful:", res.data);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        setUser(res.data.user);
+        setAuthUser(res.data.user);
         navigate("/home", { replace: true });
       } else {
         // Backend authentication failed

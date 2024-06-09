@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './Routes/authRoutes.js';
+import postRoutes from './Routes/postRoutes.js';
 import mongoose from 'mongoose';
 dotenv.config();
 const app = express();
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/post', postRoutes);
 const connectWithRetry = () => {
     mongoose.connect(process.env.MONGO_URI).then(() => {
         console.log('Connected to MongoDB 🥳');

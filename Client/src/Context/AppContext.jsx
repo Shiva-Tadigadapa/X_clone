@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState ,useEffect} from "react";
 const MainDashContext = createContext();
 
 export const MainDashProvider = ({ children }) => {
-  const [isDarkMode, setIsDarkMode] = useState("false ");
+  const [isDarkMode, setIsDarkMode] = useState("true");
   const [authUser, setAuthUser] = useState(() => {
     // Initialize user state from local storage if available
     const storedUser = localStorage.getItem("user");

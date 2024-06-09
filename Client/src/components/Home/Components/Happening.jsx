@@ -3,7 +3,7 @@ import { IoSearch } from "react-icons/io5";
 const Happening = () => {
   return (
     <>
-      <div className=" py-2 sticky top-0 border-l border-[#2f3336]  h-screen px-6 w-[25%]">
+      <div className=" py-2 sticky top-0 border-l border-[#2f3336]  h-screen px-6 w-[50%]">
         <div className=" ">
           <div className="bg-[#202327] flex items-center justify-start  mt-2 rounded-full  w-[18rem] h-11 px-4 gap-3 ">
             <IoSearch className="text-2xl text-gray-500" />
@@ -40,7 +40,7 @@ const Happening = () => {
             </div>
           </div>
         </div>
-        <div className="  border-[1px] px-4 py-2 border-[#2f3336] rounded-xl  gap-4 flex flex-col mt-4 w-full ">
+        <div className="  border px-4 py-2 border-[#2f3336] rounded-xl  gap-4 flex flex-col mt-4 w-full ">
           <h1 className=" text-xl font-semibold">Who to follow</h1>
           <div>
             <div className="flex  h-14 gap-8 w-full rounded-full  text-lg items-center mb-2  justify-start text-white  font-semibold">

@@ -9,6 +9,7 @@ import { IoBookmarksOutline } from "react-icons/io5";
 import { IoPersonOutline } from "react-icons/io5";
 import { CiCircleMore } from "react-icons/ci";
 import { useMainDashContext } from "../../../Context/AppContext";
+import { Link } from "react-router-dom";
 
 const SideSection = () => {
   const { authUser } = useMainDashContext();
@@ -46,9 +47,11 @@ const SideSection = () => {
             <CiCircleMore className="text-2xl" />
             More
           </button>
+          <Link  to={`/post/new`} className=" flex  items-center gap-3 text-xl ">
           <button className=" bg-[#1d9bf0] h-12 w-48  rounded-full ">
             Post
           </button>
+          </Link>
         </div>
         <div className="flex  h-14 gap-2 w-48 rounded-full  text-lg items-start mb-2  justify-start text-white font-semibold">
           <img

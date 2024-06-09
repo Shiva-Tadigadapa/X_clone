@@ -136,9 +136,10 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
 
       if (res.status === 200) {
         // Backend authentication successful
-        localStorage.setItem("user", JSON.stringify(userObject));
-        setUser(userObject);
-        setAuthUser(userObject);
+        console.log("Backend authentication successful:", res.data.user);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+        setUser(res.data.user);
+        setAuthUser(res.data.user);
         navigate("/home", { replace: true });
       } else {
         // Backend authentication failed

@@ -4,6 +4,7 @@ import SignUp from "./components/Auth/SignUp";
 import SignIn from "./components/Auth/SignIn";
 import { useMainDashContext } from "./Context/AppContext";
 import Home from "./components/Home/Home";
+ import NewPost from "./components/Home/Components/FeedUtils/NewPost";
 
 function App() {
   const { isDarkMode } = useMainDashContext();
@@ -24,6 +25,7 @@ function App() {
           <Route path="/signup" element={<SignIn CraModal={CraModal} type={"signup"} handleCraModalUpdate={handleCraModalUpdate}  />} />
           <Route path="/login" element={<SignIn CraModal={loginModal} type={"login"} handleCraModalUpdate={handleLoginModalUpdate}/>} />
           <Route path="/home" element={<Home />} />
+          <Route path="/post/new" element={<Home Section={"newPost"}/>} />
         </Routes>
       </div>
     </>
