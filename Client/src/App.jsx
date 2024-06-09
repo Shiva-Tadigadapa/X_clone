@@ -11,13 +11,18 @@ function App() {
   const handleCraModalUpdate = () => {
     setCraModal(!CraModal); // Set the modal to false to close it
   };
+  const [loginModal, setLoginModal] = useState(true);
+  const handleLoginModalUpdate = () => {
+    setLoginModal(!loginModal); // Set the modal to false to close it
+  };
 
   return (
     <>
       <div className={`${isDarkMode ? "bg-black text-white" : "bg-white text-black"}`}>
         <Routes>
           <Route path="/" element={<SignIn />} />
-          <Route path="/signup" element={<SignIn CraModal={CraModal} handleCraModalUpdate={handleCraModalUpdate}  />} />
+          <Route path="/signup" element={<SignIn CraModal={CraModal} type={"signup"} handleCraModalUpdate={handleCraModalUpdate}  />} />
+          <Route path="/login" element={<SignIn CraModal={loginModal} type={"login"} handleCraModalUpdate={handleLoginModalUpdate}/>} />
           <Route path="/home" element={<Home />} />
         </Routes>
       </div>

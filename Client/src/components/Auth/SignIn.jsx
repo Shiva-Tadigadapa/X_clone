@@ -1,20 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { FaApple } from "react-icons/fa";
-import { FcGoogle } from "react-icons/fc";
-import { IoLockClosedOutline } from "react-icons/io5";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
-import { useMainDashContext } from "../../Context/AppContext";
-import { Link } from "react-router-dom";
-import { IoClose } from "react-icons/io5";
-import IconTweet from "../../assets/Twitter-new-logo.jpg";
 import AuthSection from "./AuthUtils/AuthSection";
 import SignUp from "./SignUp";
-const SignIn = ({ CraModal, handleCraModalUpdate }) => {
-  // const { authUser, setAuthUser } = useMainDashContext();
+
+const SignIn = ({ type, CraModal, handleCraModalUpdate }) => {
   const [user, setUser] = useState(null);
-  // const navigate = useNavigate();
   const [CraModal2, setCraModal2] = useState(false);
 
   return (
@@ -37,12 +26,26 @@ const SignIn = ({ CraModal, handleCraModalUpdate }) => {
             </h1>
             <h2 className="text-3xl font-bold">Join today.</h2>
           </div>
-          <AuthSection />
+          <AuthSection
+            CraModal2={CraModal2}
+            setCraModal2={setCraModal2}
+            handleCraModalUpdate={handleCraModalUpdate}
+          />
         </div>
       </div>
 
-      {CraModal && (
+      {CraModal && type === "signup" && (
         <SignUp
+          type={type}
+          setCraModal2={setCraModal2}
+          handleCraModalUpdate={handleCraModalUpdate}
+          CraModal2={CraModal2}
+        />
+      )}
+
+      {CraModal && type === "login" && (
+        <SignUp
+          type={type}
           setCraModal2={setCraModal2}
           handleCraModalUpdate={handleCraModalUpdate}
           CraModal2={CraModal2}

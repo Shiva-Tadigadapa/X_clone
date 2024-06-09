@@ -10,6 +10,13 @@ export const MainDashProvider = ({ children }) => {
     return storedUser ? JSON.parse(storedUser) : null;
   });
 
+  //create an state which takes username and email and password
+  const [CreateAccount, setCreateAccount] = useState({
+    username: "",
+    email: "",
+    password: "",
+  });
+
   useEffect(() => {
     // Save user data to local storage whenever it changes
     localStorage.setItem("user", JSON.stringify(authUser));
@@ -24,6 +31,8 @@ export const MainDashProvider = ({ children }) => {
         setIsDarkMode,
         authUser,
         setAuthUser,
+        CreateAccount,
+        setCreateAccount,
       }}
     >
       {children}

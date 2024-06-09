@@ -8,8 +8,9 @@ import { IoLockClosedOutline } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
+import axios from "axios";
 
-const AuthSection = () => {
+const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
   const { authUser, setAuthUser } = useMainDashContext();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -25,17 +26,12 @@ const AuthSection = () => {
     const userObject = jwtDecode(response.credential);
 
     try {
-      const res = await fetch("http://localhost:3000/api/auth/google", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const res = await axios.post("http://localhost:3000/api/auth/google", {
+        token: response.credential,
         body: JSON.stringify({ token: response.credential }),
       });
 
-      const data = await res.json();
-
-      if (res.ok) {
+      if (res.status === 200) {
         // Backend authentication successful
         localStorage.setItem("user", JSON.stringify(userObject));
         setUser(userObject);
@@ -43,7 +39,7 @@ const AuthSection = () => {
         navigate("/home", { replace: true });
       } else {
         // Backend authentication failed
-        console.error("Backend authentication failed:", data);
+        console.error("Backend authentication failed:", res.data);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -62,6 +58,7 @@ const AuthSection = () => {
     localStorage.removeItem("user");
     setUser(null);
   };
+
   return (
     <>
       <div className="gap-10 flex flex-col">
@@ -120,7 +117,7 @@ const AuthSection = () => {
             <Link to="/signup">
               <button
                 className="w-[20rem] h-12 flex items-center cursor-pointer justify-center rounded-full bg-[#1d9bf0] text-white"
-                onClick={() => (setCraModal(true), handleCraModalUpdate)}
+                onClick={() => handleCraModalUpdate}
               >
                 Create Account
               </button>
@@ -135,10 +132,12 @@ const AuthSection = () => {
           <span className="text-lg font-semibold">
             Already have an account? Log in
           </span>
-          <button className="text-[#1d9bf0] font-bold text-lg gap-2 border-[#536471] border items-center justify-center flex w-[20rem] h-12 rounded-full bg-black">
-            <IoLockClosedOutline className="text-gray-500" />
-            Sign in
-          </button>
+          <Link to="/login">
+            <button className="text-[#1d9bf0] font-bold text-lg gap-2 border-[#536471] border items-center justify-center flex w-[20rem] h-12 rounded-full bg-black">
+              <IoLockClosedOutline className="text-gray-500" />
+              Sign in
+            </button>
+          </Link>
         </div>
       </div>
     </>
