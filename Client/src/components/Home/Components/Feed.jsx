@@ -4,11 +4,8 @@ import NewPost from "./FeedUtils/NewPost";
 import FeedPost from "./FeedUtils/FeedPost";
 import axios from "axios";
 
-const Feed = ({ Section,posts }) => {
+const Feed = ({ Section, posts }) => {
   const { authUser } = useMainDashContext();
-
-
-
 
   return (
     <div className={`flex items-start flex-col w-full`}>

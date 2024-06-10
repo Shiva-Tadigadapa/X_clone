@@ -82,33 +82,25 @@ const Comments = ({ post, nested }) => {
       >
         <div className="flex items-start w-full justify-start gap-3">
           <img
-            src={post.userDetails && post.userDetails.profilePicture}
+            src={post.user && post.user.profilePicture}
             className="h-10 w-10 mt-2 rounded-full"
             alt="profile"
           />
           <div className="flex flex-col items-start justify-center">
             <div className="items-center flex gap-2">
-              <Link
-                to={`/profile/${post.userDetails && post.userDetails.handle}`}
-              >
+              <Link to={`/profile/${post.user && post.user.handle}`}>
                 <h1 className="text-lg font-semibold">
-                  {(post.userDetails && post.userDetails.username) || ""}
+                  {(post.user && post.user.username) || ""}
                 </h1>
               </Link>
-              <Link
-                to={`/profile/${
-                  (post.userDetails && post.userDetails.handle) || ""
-                }`}
-              >
+              <Link to={`/profile/${(post.user && post.user.handle) || ""}`}>
                 <p className="text-gray-500">
-                  @{(post.userDetails && post.userDetails.handle) || ""}
+                  @{(post.user && post.user.handle) || ""}
                 </p>
               </Link>
             </div>
             <Link
-              to={`/${
-                (post.userDetails && post.userDetails.handle) || ""
-              }/post/${post._id}`}
+              to={`/${(post.user && post.user.handle) || ""}/post/${post._id}`}
             >
               <div>
                 <p className=" text-lg ">{post?.comment}</p>

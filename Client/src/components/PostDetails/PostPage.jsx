@@ -1,29 +1,23 @@
 import React, { useRef } from "react";
-import { FaRegComment, FaRetweet } from "react-icons/fa";
-import { FiHeart } from "react-icons/fi";
-import { IoStatsChartSharp, IoBookmarksOutline } from "react-icons/io5";
-import { FiShare } from "react-icons/fi";
-import { Link } from "react-router-dom";
-import { IoClose } from "react-icons/io5";
+import { FaRegComment, FaRetweet, FaArrowLeft } from "react-icons/fa";
+import { FiHeart, FiShare } from "react-icons/fi";
+import { IoStatsChartSharp, IoBookmarksOutline, IoClose } from "react-icons/io5";
+import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
 import axios from "axios";
 import { useMainDashContext } from "../../Context/AppContext";
-
 import ImageKit from "imagekit";
 import { BsEmojiSmile } from "react-icons/bs";
 import { RiCalendarScheduleLine } from "react-icons/ri";
 import { CgOptions } from "react-icons/cg";
 import { MdOutlineGifBox } from "react-icons/md";
 import { PiImageSquare } from "react-icons/pi";
-import FeedPost from "../Home/Components/FeedUtils/FeedPost";
 import Comments from "./Comments";
+
 const PostPage = () => {
   const { handle, postId } = useParams();
-  console.log("handle:", handle, "postId:", postId)
+  console.log("handle:", handle, "postId:", postId);
   const { authUser } = useMainDashContext();
-  //   console.log("authUser:", authUser);
   const [post, setPost] = useState({});
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
@@ -43,7 +37,6 @@ const PostPage = () => {
     setLoading(true);
 
     try {
-      // Upload file to ImageKit
       const uploadResponse = await imagekit.upload({
         file,
         fileName: file.name,
@@ -52,8 +45,6 @@ const PostPage = () => {
       console.log("Upload Response:", uploadResponse);
 
       const imageUrl = uploadResponse.url;
-
-      // Update images array
       setImages((prevImages) => [...prevImages, { url: imageUrl }]);
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -69,7 +60,7 @@ const PostPage = () => {
         content,
         images,
         userId: authUser.userId,
-        parentCommentId : postId,
+        parentCommentId: postId,
       };
 
       console.log("Post Data:", postData);
@@ -102,7 +93,7 @@ const PostPage = () => {
       }
     };
     fetchPost();
-  }, []);
+  }, [handle, postId]);
 
   const renderImages = () => {
     const { mediaUrl } = post;
@@ -171,30 +162,30 @@ const PostPage = () => {
       );
     }
   };
+
   const [calHeight, setCalHeight] = useState(0);
   const calHeightRef = useRef(null);
   useEffect(() => {
-    // Calculate the height of the element when the component mounts or updates
     if (calHeightRef.current) {
       setCalHeight(calHeightRef.current.clientHeight + 12);
     }
-  }, [post]); // Recalculate height whenever the post changes
+  }, [post]);
 
   return (
     <>
-      <div className="flex flex-col border-b w-full h-full border-[#2f3336] items-start  gap-3 px-6">
-        <div className=" px-4 py-4 w-full justify-start  sticky top-0  bg-black/70 backdrop-blur-md items-center gap-8 flex">
+      <div className="flex flex-col border-b w-full h-full border-[#2f3336] items-start gap-3 px-6">
+        <div className="px-4 py-4 w-full justify-start sticky top-0 bg-black/70 backdrop-blur-md items-center gap-8 flex">
           <Link to="/home">
             <FaArrowLeft className="text-xl" />
           </Link>
-          <div className=" flex flex-col gap-1">
-            <h1 className=" text-xl font-bold">Post</h1>
+          <div className="flex flex-col gap-1">
+            <h1 className="text-xl font-bold">Post</h1>
           </div>
         </div>
         {post && post.nestedComment ? (
-          <div className="flex items-start  flex-col h-full justify-center ">
-            <div className="flex items-start gap-3 h-full ">
-              <div className=" flex flex-col  relative  h-full w-full  items-center gap-2">
+          <div className="flex items-start flex-col h-full justify-center">
+            <div className="flex items-start gap-3 h-full">
+              <div className="flex flex-col relative h-full w-full items-center gap-2">
                 <>
                   <img
                     src={
@@ -206,119 +197,117 @@ const PostPage = () => {
                     alt="profile"
                   />
                   <div
-                    className={`bg-gray-600   mt-1 top-12  absolute w-[2px]`}
+                    className={`bg-gray-600 mt-1 top-12 absolute w-[2px]`}
                     style={{ height: `${calHeight && calHeight}px` }}
                   />
                 </>
               </div>
-
-              <div className="items-start flex-col flex ">
+              <div className="items-start flex-col flex">
                 <Link
                   to={`/profile/${
-                    post.authorDetails && post.authorDetails.handle
+                    post.author && post.author.handle
                   }`}
                 >
                   <h1 className="text-lg font-semibold">
-                    {post.authorDetails && post.authorDetails.handle}
+                    {post.author && post.author.handle}
                   </h1>
                 </Link>
                 <Link
                   to={`/profile/${
-                    post.authorDetails && post.authorDetails.handle
+                    post.author && post.author.handle
                   }`}
                 >
                   <p className="text-gray-500">
-                    @{post.authorDetails && post.authorDetails.handle}
+                    @{post.author && post.author.handle}
                   </p>
                 </Link>
               </div>
             </div>
-            <div className="  cal-height pl-12 " ref={calHeightRef}>
-              <div className="  ml-1 ">
-                <p className=" text-lg     mt-2">{post && post.content}</p>
+            <div className="cal-height pl-12" ref={calHeightRef}>
+              <div className="ml-1">
+                <p className="text-lg mt-2">{post && post.content}</p>
                 {renderImages()}
               </div>
             </div>
-            {post.comments &&
-              post.comments.map((comment) => (
+            {post.timeline &&
+              post.timeline.map((comment) => (
                 <Comments key={comment._id} post={comment} nested={1} />
               ))}
           </div>
         ) : (
           <>
-            <div className="flex items-start  flex-col justify-center ">
+            <div className="flex items-start flex-col justify-center">
               <div className="flex items-start gap-3">
                 <img
                   src={
                     post &&
-                    post.authorDetails &&
-                    post.authorDetails.profilePicture
+                    post.author &&
+                    post.author.profilePicture
                   }
                   className="h-10 w-10 mt-2 rounded-full"
                   alt="profile"
                 />
-                <div className="items-start flex-col flex ">
+                <div className="items-start flex-col flex">
                   <Link
                     to={`/profile/${
-                      post.authorDetails && post.authorDetails.handle
+                      post.author && post.author.handle
                     }`}
                   >
                     <h1 className="text-lg font-semibold">
-                      {post.authorDetails && post.authorDetails.handle}
+                      {post.author && post.author.handle}
                     </h1>
                   </Link>
                   <Link
                     to={`/profile/${
-                      post.authorDetails && post.authorDetails.handle
+                      post.author && post.author.handle
                     }`}
                   >
                     <p className="text-gray-500">
-                      @{post.authorDetails && post.authorDetails.handle}
+                      @{post.author && post.author.handle}
                     </p>
                   </Link>
                 </div>
               </div>
-              <div className=" ">
-                <div className="  ml-1 ">
-                  <p className=" text-lg     mt-2">{post && post.content}</p>
+              <div className="">
+                <div className="ml-1">
+                  <p className="text-lg mt-2">{post && post.content}</p>
                   {renderImages()}
                 </div>
               </div>
             </div>
-            <h1 className="  text-[17px] tracking-wider  text-gray-500  font-medium">
-              {" "}
+            <h1 className="text-[17px] tracking-wider text-gray-500 font-medium">
               5:40 PM . Jun 9, 2024 . 1.1M Views
             </h1>
           </>
         )}
 
-        <div className=" w-full px-4  h-[1px] bg-gray-600 " />
-        <div className="text-gray-500 flex  justify-around  text-xl -ml-4   w-full">
+        <div className="w-full px-4 h-[1px] bg-gray-600" />
+        <div className="text-gray-500 flex justify-around text-xl -ml-4 w-full">
           <button className="flex gap-2 items-center">
             <FaRegComment />
-            <p className="   text-[16px]">656</p>
+            <p className="text-[16px]">656</p>
           </button>
           <button className="flex gap-2 items-center">
             <FaRetweet />
-            <p className="   text-[16px]">10</p>
+            <p className="text-[16px]">10</p>
           </button>
           <button className="flex gap-2 items-center">
             <FiHeart />
-            <p className="   text-[16px]"> 566</p>
+            <p className="text-[16px]">566</p>
           </button>
           <button className="flex gap-2 items-center">
             <IoStatsChartSharp />
-            <p className="   text-[16px]">10</p>
+            <p className="text-[16px]">10</p>
           </button>
           <div className="flex gap-4 justify-between">
             <button className="flex gap-2 items-center">
-              <FiShare className=" text-xl" />
+              <FiShare className="text-xl" />
             </button>
           </div>
         </div>
-        <div className=" w-full  h-[1px] bg-gray-600 " />
+        <div className="w-full h-[1px] bg-gray-600" />
 
-        <div className="rounded-2xl items-start justify-start max-h-[30rem] flex   px-2 py-5 w-full gap-4 overflow-y-auto">
+        <div className="rounded-2xl items-start justify-start max-h-[30rem] flex px-2 py-5 w-full gap-4 overflow-y-auto">
           <img
             src={authUser?.picture}
             className="h-10 w-10 rounded-full"
@@ -385,11 +374,11 @@ const PostPage = () => {
             </div>
           </div>
         </div>
-        <div className=" w-full  h-[1px] bg-gray-600 " />
-        <div className=" w-full">
-          {post.comments &&
-            post.comments
-              .slice(post && post.nestedComment ? 1 : 0) // Conditionally start from the second element
+        <div className="w-full h-[1px] bg-gray-600" />
+        <div className="w-full">
+          {post.timeline &&
+            post.timeline
+              .slice(post && post.nestedComment ? 1 : 0)
               .map((comment) => <Comments key={comment._id} post={comment} />)}
         </div>
       </div>

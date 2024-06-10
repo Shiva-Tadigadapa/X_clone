@@ -2,7 +2,7 @@ import PostModel from '../Models/postModel.js';
 import UserModel from '../Models/userModel.js';
 import { CommentModel } from '../Models/postModel.js';
 import mongoose from 'mongoose'; // Import mongoose
-
+const parentId = new mongoose.Types.ObjectId();
 const { ObjectId } = mongoose.Types; // Destructure ObjectId from mongoose.Types
 export const createPost = async (req, res) => {
     const { content, images, userId } = req.body;
@@ -66,284 +66,126 @@ export const profile = async (req, res) => {
 
 
 
+
+
+
+
 export const getPost = async (req, res) => {
     const { postId } = req.params;
 
     try {
-        console.log(`Fetching post with ID: ${postId}`);
-
-        // Aggregate pipeline to fetch post details along with author's details and comments
-        let postWithComments = await PostModel.aggregate([
-            { $match: { _id: new mongoose.Types.ObjectId(postId) } }, // Match post by ID
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'author',
-                    foreignField: '_id',
-                    as: 'authorDetails'
-                }
-            },
-            { $unwind: '$authorDetails' }, // Deconstruct the authorDetails array
-            {
-                $lookup: {
-                    from: 'comments',
-                    localField: 'comments',
-                    foreignField: '_id',
-                    as: 'commentDocs'
-                }
-            },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'commentDocs.user',
-                    foreignField: '_id',
-                    as: 'commentUsers'
-                }
-            },
-            {
-                $addFields: {
-                    comments: {
-                        $map: {
-                            input: '$commentDocs',
-                            as: 'comment',
-                            in: {
-                                $mergeObjects: [
-                                    '$$comment',
-                                    {
-                                        userDetails: {
-                                            $arrayElemAt: [
-                                                '$commentUsers',
-                                                { $indexOfArray: ['$commentUsers._id', '$$comment.user'] }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        }
+        // Find the post by ID and populate author and timeline fields with references
+        const checker = await PostModel.findOne({ _id: postId });
+        console.log('checker:', checker);
+        let post = {};
+        if (checker && checker !== null) {
+            post = await PostModel.findById(postId)
+                .populate({
+                    path: 'author',
+                    select: '-password', // Exclude the password field from the author details
+                })
+                .populate({
+                    path: 'timeline', // Populate the timeline field with comment references
+                    select: '_id comment user createdAt', // Select only the essential fields
+                    populate: {
+                        path: 'user',
+                        select: '-password', // Exclude the password field from the user details
                     }
-                }
-            },
-            {
-                $addFields: {
-                    comments: {
-                        $filter: {
-                            input: '$comments',
-                            as: 'comment',
-                            cond: { $ne: ['$$comment.userDetails', null] } // Filter out comments without userDetails
-                        }
+                });
+        } else {
+            // If post not found in the post model, check in the comment model
+            const checker = await CommentModel.findOne({ _id: postId });
+            console.log('comment parentid:', checker.parentPostId);
+            post = await CommentModel.findById(postId)
+                .populate({
+                    path: 'user',
+                    select: '-password', // Exclude the password field from the user details
+                }).populate({
+                    path: 'timeline', // Populate the timeline field with comment references
+                    select: '_id comment user createdAt', // Select only the essential fields
+                    populate: {
+                        path: 'user',
+                        select: '-password',
                     }
-                }
-            },
-            {
-                $project: {
-                    authorDetails: {
-                        $mergeObjects: [
-                            '$authorDetails',
-                            { password: '$$REMOVE' } // Exclude the password field
-                        ]
-                    },
-                    content: 1,
-                    mediaUrl: 1,
-                    likes: 1,
-                    comments: 1,
-                    createdAt: 1,
-                    updatedAt: 1
-                }
-            },
-            {
-                $addFields: {
-                    comments: {
-                        $reverseArray: '$comments' // Reverse the order of comments to make the latest first
+                }).populate({
+                    path: 'parentPostId',
+                    select: '_id content author createdAt mediaUrl likes hasComments ',
+                    populate: {
+                        path: 'author',
+                        select: '-password',
                     }
-                }
-            }
-        ]);
-
-        console.log('Post with comments:', postWithComments);
-
-        // Check if postWithComments is empty or post not found
-        let nestedComment = false;
-        if (!postWithComments || postWithComments.length === 0) {
-            console.log('Post not found, checking nested comments');
-            // Search for posts within comments
-            postWithComments = await PostModel.aggregate([
-                { $match: { 'comments': new mongoose.Types.ObjectId(postId) } }, // Match post by comment ID
-                { $unwind: '$comments' }, // Deconstruct the comments array
-                { $match: { 'comments': new mongoose.Types.ObjectId(postId) } }, // Match the specific comment by ID
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'author',
-                        foreignField: '_id',
-                        as: 'authorDetails'
-                    }
-                },
-                { $unwind: '$authorDetails' }, // Deconstruct the authorDetails array
-                {
-                    $lookup: {
-                        from: 'comments',
-                        localField: 'comments',
-                        foreignField: '_id',
-                        as: 'commentDocs'
-                    }
-                },
-                {
-                    $lookup: {
-                        from: 'users',
-                        localField: 'commentDocs.user',
-                        foreignField: '_id',
-                        as: 'commentUsers'
-                    }
-                },
-                {
-                    $addFields: {
-                        comments: {
-                            $map: {
-                                input: '$commentDocs',
-                                as: 'comment',
-                                in: {
-                                    $mergeObjects: [
-                                        '$$comment',
-                                        {
-                                            userDetails: {
-                                                $arrayElemAt: [
-                                                    '$commentUsers',
-                                                    { $indexOfArray: ['$commentUsers._id', '$$comment.user'] }
-                                                ]
-                                            }
-                                        }
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        comments: {
-                            $filter: {
-                                input: '$comments',
-                                as: 'comment',
-                                cond: { $ne: ['$$comment.userDetails', null] } // Filter out comments without userDetails
-                            }
-                        }
-                    }
-                },
-                {
-                    $project: {
-                        authorDetails: {
-                            $mergeObjects: [
-                                '$authorDetails',
-                                { password: '$$REMOVE' } // Exclude the password field
-                            ]
-                        },
-                        content: 1,
-                        mediaUrl: 1,
-                        likes: 1,
-                        comments: 1,
-                        createdAt: 1,
-                        updatedAt: 1
-                    }
-                }
-            ]);
-
-            nestedComment = postWithComments.length > 0; // Set nestedComment to true if a post was found
+                });
         }
 
-        console.log('Post with nested comments:', postWithComments);
-
-        // Check if postWithComments is still empty or post not found
-        if (!postWithComments || postWithComments.length === 0) {
-            return res.status(404).json({ success: false, message: "Post not found" });
-        }
-
-        // Add nestedComment field to the response
-        const postResponse = postWithComments[0];
-        if (nestedComment) {
-            postResponse.nestedComment = true;
-        }
-
-        // Send the combined data back to the frontend
+        console.log('comment:', post);
         res.status(200).json({
             success: true,
-            post: postResponse,
+            post: post,
         });
-    } catch (error) {
-        console.error("Error fetching post and user profile:", error);
+    }
+    catch (error) {
+        console.error("Error fetching post:", error);
         res.status(500).json({ success: false, message: "Failed to fetch post" });
     }
+    // Send the post data along with the timeline (comment references) back to the frontend
+
+
 };
 
-
-
-
-
-
-
 export const createComment = async (req, res) => {
-    const { postId } = req.params;
-    const { userId, content, images, parentCommentId } = req.body; // Added parentCommentId
-
-    console.log('req.body:', req.body);
-    console.log('req.params:', req.params);
+    const { parentCommentId, userId, content, mediaUrl } = req.body;
 
     try {
-        const mediaUrl = images ? images.map((image) => image.url) : [];
+        // Log the value of commentText for debugging
+        // console.log("Comment text:", content);
 
-        // Check if postId is a valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(postId)) {
-            return res.status(400).json({ success: false, message: "Invalid post ID" });
+        // Check if comment text is provided
+        if (!content) {
+            return res.status(400).json({ success: false, message: "Comment text is required" });
         }
 
         // Create a new comment
         const newComment = new CommentModel({
-            user: userId,
+            user: new mongoose.Types.ObjectId(userId),
             comment: content,
-            mediaUrl: mediaUrl,
+            mediaUrl: mediaUrl || [],
+            parentPostId: parentCommentId,
+            timeline: []
         });
 
-        let post = await PostModel.findById(postId);
+        // Save the comment
+        const savedComment = await newComment.save();
 
-        if (post) {
-            // Add the new comment to the post
-            post.comments.push(newComment._id);
-            await post.save();
-        } else {
-            // Check if it's a nested comment
-            if (parentCommentId) {
-                // Check if parentCommentId is a valid ObjectId
-                if (!mongoose.Types.ObjectId.isValid(parentCommentId)) {
-                    return res.status(400).json({ success: false, message: "Invalid parent comment ID" });
-                }
+        const checker = await PostModel.findOne({ _id: parentCommentId });
+        console.log('checker:', checker);
+        const checker2 = await CommentModel.findOne({ _id: parentCommentId });
+        console.log('checker2:', checker2);
 
-                // Find the parent comment
-                const parentComment = await CommentModel.findById(parentCommentId);
-                if (parentComment) {
-                    // Add the new comment as a reply to the parent comment
-                    parentComment.replies.push(newComment._id);
-                    await parentComment.save();
-                } else {
-                    // If parent comment is not found, check within nested comments in PostModel
-                    post = await PostModel.findOne({ "comments._id": parentCommentId });
-                    if (post) {
-                        post.comments.push(newComment._id);
-                        await post.save();
-                    } else {
-                        return res.status(404).json({ success: false, message: "Post not found" });
-                    }
-                }
+        let parentType;
+        if (parentCommentId) {
+            const parentPost = await PostModel.findById(parentCommentId);
+            console.log('parentPost:', parentPost);
+
+            if (checker && checker !== null) {
+                console.log('parentPost.hasComments: ', parentPost.hasComments);
+                parentType = 'post';
+                parentPost.hasComments = true;
+                parentPost.timeline.push(savedComment._id);
+                parentPost.parentPostId = parentCommentId;
+                await parentPost.save();
+                console.log("Top-level comment added to post", parentPost);
             } else {
-                return res.status(404).json({ success: false, message: "Post not found" });
+
             }
+        } else {
+            parentType = 'post'; // Top-level comment
         }
 
-        // Save the new comment
-        await newComment.save();
-
-        res.status(200).json({ success: true, message: "Comment added successfully", comment: newComment });
+        res.status(201).json({ success: true, comment: savedComment, parentType });
     } catch (error) {
-        console.error("Error adding comment:", error);
-        res.status(500).json({ success: false, message: "Failed to add comment" });
+        console.error("Error creating comment:", error);
+        res.status(500).json({ success: false, message: "Failed to create comment" });
     }
 };
+
 

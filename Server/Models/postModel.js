@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
- import dotenv from "dotenv";
- 
+import dotenv from "dotenv";
 
 const { Schema } = mongoose;
 
@@ -23,8 +22,15 @@ const commentSchema = new Schema({
     mediaUrl: {
         type: [String],
     },
-    // Add sub-comments to allow nested comments
-    replies: [{ type: Schema.Types.ObjectId, ref: 'Comment' }] // Reference other comments
+    hasComments: {
+        type: Boolean,
+        default: false
+    },
+    timeline: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
+    parentPostId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Post',
+    },
 }, { timestamps: true });
 
 // Create the Comment model
@@ -48,7 +54,11 @@ const postSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User', // Assuming your user model is named 'User'
     }],
-    comments: [{ type: Schema.Types.ObjectId, ref: 'Comment' }], // Use the Comment model
+    timeline: [{ type: Schema.Types.ObjectId, ref: 'Comment' }], // Timeline for top-level comments
+    hasComments: {
+        type: Boolean,
+        default: false
+    },
     createdAt: {
         type: Date,
         default: Date.now,
@@ -57,6 +67,10 @@ const postSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    parentPostId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Post',
+    }
 }, { timestamps: true });
 
 postSchema.index({
@@ -71,5 +85,5 @@ postSchema.pre('save', function (next) {
 
 const PostModel = mongoose.model('Post', postSchema);
 
-export default PostModel ;
+export default PostModel;
 export { CommentModel };
