@@ -3,7 +3,7 @@ import { IoSearch } from "react-icons/io5";
 const Happening = () => {
   return (
     <>
-      <div className=" py-2 sticky top-0 border-l border-[#2f3336]  h-screen px-6 w-[50%]">
+      <div className=" py-2 sticky top-0 border-l border-[#2f3336]  h-screen px-6 w-[60%]">
         <div className=" ">
           <div className="bg-[#202327] flex items-center justify-start  mt-2 rounded-full  w-[18rem] h-11 px-4 gap-3 ">
             <IoSearch className="text-2xl text-gray-500" />

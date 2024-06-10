@@ -10,9 +10,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import PostPage from "../PostDetails/PostPage";
 import { useLocation } from "react-router-dom";
+import { useMainDashContext } from "../../Context/AppContext";
 
 const Home = ({ Section }) => {
   const [posts, setPosts] = useState([]);
+  const { postRender } = useMainDashContext();
   const location = useLocation();
   const hiddenData = location && location.state && location.state.hiddenData;
   console.log(hiddenData, "hiddenData");
@@ -31,7 +33,7 @@ const Home = ({ Section }) => {
 
     fetchPosts();
     //remove the nestedcomments form local storage
-  }, []);
+  }, [postRender]);
   return (
     <>
       <div

@@ -10,7 +10,7 @@ import { IoClose } from "react-icons/io5";
 import axios from "axios";
 
 const NewPost = (composeModal) => {
-  const { authUser } = useMainDashContext();
+  const { authUser ,setPostRender,postRender } = useMainDashContext();
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -48,6 +48,7 @@ const NewPost = (composeModal) => {
     }
   };
 
+
   const handlePost = async () => {
     setLoading(true);
     try {
@@ -63,6 +64,7 @@ const NewPost = (composeModal) => {
 
       setContent("");
       setImages([]);
+      setPostRender(!postRender);
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {

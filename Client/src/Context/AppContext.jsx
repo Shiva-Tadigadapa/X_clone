@@ -39,6 +39,7 @@ export const MainDashProvider = ({ children }) => {
     // Save hiddenData data to local storage whenever it changes
     localStorage.setItem("hiddenData", JSON.stringify(HiddenDatah));
   }, [HiddenDatah]);
+  const [postRender, setPostRender] = useState(false);
 
   return (
     <MainDashContext.Provider
@@ -55,6 +56,8 @@ export const MainDashProvider = ({ children }) => {
         setHiddenDatah,
         feedNav,
         setFeedNav,
+        postRender,
+        setPostRender,
       }}
     >
       {children}
