@@ -78,6 +78,7 @@ export const getPost = async (req, res) => {
         const checker = await PostModel.findOne({ _id: postId });
         console.log('checker:', checker);
         let post = {};
+        let isNested = false;
         if (checker && checker !== null) {
             post = await PostModel.findById(postId)
                 .populate({
@@ -115,12 +116,14 @@ export const getPost = async (req, res) => {
                         select: '-password',
                     }
                 });
+            isNested = true;
         }
 
         console.log('comment:', post);
         res.status(200).json({
             success: true,
             post: post,
+            isNested: isNested
         });
     }
     catch (error) {

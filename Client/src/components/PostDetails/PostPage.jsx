@@ -1,7 +1,11 @@
 import React, { useRef } from "react";
 import { FaRegComment, FaRetweet, FaArrowLeft } from "react-icons/fa";
 import { FiHeart, FiShare } from "react-icons/fi";
-import { IoStatsChartSharp, IoBookmarksOutline, IoClose } from "react-icons/io5";
+import {
+  IoStatsChartSharp,
+  IoBookmarksOutline,
+  IoClose,
+} from "react-icons/io5";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -13,15 +17,18 @@ import { CgOptions } from "react-icons/cg";
 import { MdOutlineGifBox } from "react-icons/md";
 import { PiImageSquare } from "react-icons/pi";
 import Comments from "./Comments";
+// import { useMainDashContext } from "../../Context/AppContext";
 
 const PostPage = () => {
   const { handle, postId } = useParams();
   console.log("handle:", handle, "postId:", postId);
   const { authUser } = useMainDashContext();
+  const { nestedComments, setNestedComments } = useMainDashContext();
   const [post, setPost] = useState({});
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isNested, setIsNested] = useState(false);
 
   const imagekit = new ImageKit({
     publicKey: "public_u7kxH7LgunPNp3hdLZv7edHsbBI=",
@@ -87,7 +94,34 @@ const PostPage = () => {
           `http://localhost:3000/post/${postId}/${handle}`
         );
         console.log(response.data.post);
+        setIsNested(response.data.isNested);
         setPost(response.data.post);
+        setNestedComments((prevNestedComments) => {
+          // Create a set to store unique IDs
+          const uniqueIds = new Set(prevNestedComments);
+
+          // Check if the response post ID already exists in the set
+          if (!uniqueIds.has(response.data.post._id)) {
+            // If it doesn't exist, add the new post ID to the array
+            const updatedNestedComments = [
+              ...prevNestedComments,
+              response.data.post._id,
+            ];
+
+            // Store the updated nestedComments array in local storage
+            localStorage.setItem(
+              "nestedComments",
+              JSON.stringify(updatedNestedComments)
+            );
+
+            return updatedNestedComments;
+          } else {
+            // If it already exists, return the previous state without adding the duplicate post ID
+            return prevNestedComments;
+          }
+        });
+
+        console.log("nestedComments:", nestedComments);
       } catch (error) {
         console.error("Error fetching post:", error);
       }
@@ -96,7 +130,7 @@ const PostPage = () => {
   }, [handle, postId]);
 
   const renderImages = () => {
-    const { mediaUrl } = post;
+    const { mediaUrl } = isNested ? post.parentPostId : post;
 
     if (!mediaUrl || mediaUrl.length === 0) return null;
 
@@ -175,14 +209,20 @@ const PostPage = () => {
     <>
       <div className="flex flex-col border-b w-full h-full border-[#2f3336] items-start gap-3 px-6">
         <div className="px-4 py-4 w-full justify-start sticky top-0 bg-black/70 backdrop-blur-md items-center gap-8 flex">
-          <Link to="/home">
+          <Link
+            to="/home"
+            //remove nested from the local storage
+            onClick={() => {
+              localStorage.removeItem("nestedComments");
+            }}
+          >
             <FaArrowLeft className="text-xl" />
           </Link>
           <div className="flex flex-col gap-1">
             <h1 className="text-xl font-bold">Post</h1>
           </div>
         </div>
-        {post && post.nestedComment ? (
+        {isNested && isNested ? (
           <div className="flex items-start flex-col h-full justify-center">
             <div className="flex items-start gap-3 h-full">
               <div className="flex flex-col relative h-full w-full items-center gap-2">
@@ -190,8 +230,9 @@ const PostPage = () => {
                   <img
                     src={
                       post &&
-                      post.authorDetails &&
-                      post.authorDetails.profilePicture
+                      post.parentPostId &&
+                      post.parentPostId.author &&
+                      post.parentPostId.author.profilePicture
                     }
                     className="h-10 w-10 mt-2 rounded-full"
                     alt="profile"
@@ -202,30 +243,35 @@ const PostPage = () => {
                   />
                 </>
               </div>
-              <div className="items-start flex-col flex">
+              <div className="items-start  flex-col  flex">
                 <Link
                   to={`/profile/${
-                    post.author && post.author.handle
+                    post.parentPostId.author && post.parentPostId.author.handle
                   }`}
                 >
-                  <h1 className="text-lg font-semibold">
-                    {post.author && post.author.handle}
+                  <h1 className="text-lg  w-72 font-semibold">
+                    {post.parentPostId.author &&
+                      post.parentPostId.author.username}
                   </h1>
                 </Link>
                 <Link
                   to={`/profile/${
-                    post.author && post.author.handle
+                    post.parentPostId.author && post.parentPostId.author.handle
                   }`}
                 >
                   <p className="text-gray-500">
-                    @{post.author && post.author.handle}
+                    @
+                    {post.parentPostId.author &&
+                      post.parentPostId.author.handle}
                   </p>
                 </Link>
               </div>
             </div>
             <div className="cal-height pl-12" ref={calHeightRef}>
               <div className="ml-1">
-                <p className="text-lg mt-2">{post && post.content}</p>
+                <p className="text-lg mt-2">
+                  {post.parentPostId && post.parentPostId.content}
+                </p>
                 {renderImages()}
               </div>
             </div>
@@ -239,29 +285,17 @@ const PostPage = () => {
             <div className="flex items-start flex-col justify-center">
               <div className="flex items-start gap-3">
                 <img
-                  src={
-                    post &&
-                    post.author &&
-                    post.author.profilePicture
-                  }
+                  src={post && post.author && post.author.profilePicture}
                   className="h-10 w-10 mt-2 rounded-full"
                   alt="profile"
                 />
                 <div className="items-start flex-col flex">
-                  <Link
-                    to={`/profile/${
-                      post.author && post.author.handle
-                    }`}
-                  >
+                  <Link to={`/profile/${post.author && post.author.handle}`}>
                     <h1 className="text-lg font-semibold">
                       {post.author && post.author.handle}
                     </h1>
                   </Link>
-                  <Link
-                    to={`/profile/${
-                      post.author && post.author.handle
-                    }`}
-                  >
+                  <Link to={`/profile/${post.author && post.author.handle}`}>
                     <p className="text-gray-500">
                       @{post.author && post.author.handle}
                     </p>
