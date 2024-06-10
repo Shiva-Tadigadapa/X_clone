@@ -20,10 +20,10 @@ import Comments from "./Comments";
 import { useLocation } from "react-router-dom";
 // import { useMainDashContext } from "../../Context/AppContext";
 
-const PostPage = ({}) => {
+const PostPage = ({setSideSec2}) => {
   const { handle, postId } = useParams();
-  const { HiddenDatah, setHiddenDatah } = useMainDashContext();
-
+  const { HiddenDatah, setHiddenDatah ,setSideSec,SideSec} = useMainDashContext();
+  setSideSec(setSideSec2);
   console.log("handle:", handle, "postId:", postId);
   const { authUser } = useMainDashContext();
   const { nestedComments, setNestedComments } = useMainDashContext();
@@ -149,7 +149,7 @@ const PostPage = ({}) => {
       }
     };
     fetchPost();
-  }, [handle, postId,rerender]);
+  }, [handle, postId, rerender]);
   const getFirstHiddenData = () => {
     if (!hiddenData || typeof hiddenData !== "object") return null;
 
@@ -269,7 +269,11 @@ const PostPage = ({}) => {
 
   return (
     <>
-      <div className="flex flex-col border-b w-full h-full border-[#2f3336] items-start gap-3 px-6">
+      <div
+        className={`flex flex-col border-b  ${
+       (  (post && post.mediaUrl && post.mediaUrl.length===0) ) ? "w-[700px]": "w-full"
+        }   h-full  border-[#2f3336] items-start gap-3 px-6`}
+      >
         <div className="px-4 py-4 w-full justify-start sticky top-0 bg-black/70 backdrop-blur-md items-center gap-8 flex">
           <Link
             to="/home"

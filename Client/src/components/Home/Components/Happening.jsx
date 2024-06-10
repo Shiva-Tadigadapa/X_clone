@@ -1,9 +1,13 @@
 import React from "react";
 import { IoSearch } from "react-icons/io5";
+
+import { Link } from "react-router-dom";
+import { useMainDashContext } from "../../../Context/AppContext";
 const Happening = () => {
+  const { SideSec } = useMainDashContext();
   return (
     <>
-      <div className=" py-2 sticky top-0 border-l border-[#2f3336]   md:hidden sm:hidden lg:block hidden h-screen px-6 w-[55%]">
+      <div className={`py-2 sticky top-0 border-l border-[#2f3336]   md:hidden sm:hidden lg:block hidden h-screen px-6 ${SideSec?'w-[30%]':'w-[55%]'}`}>
         <div className=" ">
           <div className="bg-[#202327] flex items-center justify-start  mt-2 rounded-full  w-[18rem] h-11 px-4 gap-3 ">
             <IoSearch className="text-2xl text-gray-500" />

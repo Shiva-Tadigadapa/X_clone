@@ -9,6 +9,10 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+/* Add this CSS to your stylesheet */
+.no-scroll {
+  overflow: hidden;
+}
 
 /* Firefox */
 input[type=number] {

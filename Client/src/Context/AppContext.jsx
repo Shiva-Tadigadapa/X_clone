@@ -40,6 +40,7 @@ export const MainDashProvider = ({ children }) => {
     localStorage.setItem("hiddenData", JSON.stringify(HiddenDatah));
   }, [HiddenDatah]);
   const [postRender, setPostRender] = useState(false);
+  const [SideSec, setSideSec] = useState(0);
 
   return (
     <MainDashContext.Provider
@@ -58,6 +59,9 @@ export const MainDashProvider = ({ children }) => {
         setFeedNav,
         postRender,
         setPostRender,
+        SideSec,
+        setSideSec,
+
       }}
     >
       {children}

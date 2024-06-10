@@ -8,8 +8,8 @@ const SignIn = ({ type, CraModal, handleCraModalUpdate }) => {
 
   return (
     <>
-      <div className="flex items-center justify-around gap-10 h-screen w-full">
-        <div className="hidden lg:block h-[20rem] w-[20rem]">
+      <div className="flex items-center justify-between gap-[15rem]  h-screen w-full">
+        <div className="hidden ml-36  lg:block h-[20rem] w-[20rem]">
           <svg viewBox="0 0 24 24" aria-hidden="true" className="">
             <g>
               <path
@@ -19,7 +19,7 @@ const SignIn = ({ type, CraModal, handleCraModalUpdate }) => {
             </g>
           </svg>
         </div>
-        <div className="flex flex-col items-start">
+        <div className=" flex flex-col items-start">
           <div className="flex flex-col gap-10 mb-6">
             <h1 className="text-6xl font-extrabold tracking-wide text-[#e7e9ea]">
               Happening now
