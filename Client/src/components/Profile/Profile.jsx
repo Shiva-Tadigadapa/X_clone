@@ -44,7 +44,7 @@ const Profile = () => {
     const checkFollowing = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/post/check/${username}`,
+          `http://localhost:3000/post/check/${userProfile._id}`,
           {
             params: { followerId: authUser.userId },
           }

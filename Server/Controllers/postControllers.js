@@ -333,9 +333,25 @@ export const checkUserFollowing = async (req, res) => {
    
 
     try {
-        const { followerId } = req.query;
-        const { userId } = req.params;
         
+        const { id } = req.params; // ID of the user to be checked
+        const { followerId } = req.query; // ID of the follower
+        console.log('id:', id);
+        console.log('followerId:', followerId);
+        // Find the user to be checked
+        const userToBeChecked = await UserModel.findById(id);
+        if (!userToBeChecked) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+
+        // Check if the user is already following
+        const isFollowing = userToBeChecked.followers.includes(followerId);
+        console.log('isFollowing:', isFollowing);
+
+
+        
+
         res.status(200).json({ success: true, isFollowing });
       } catch (error) {
         console.error('Error checking follow status:', error);
