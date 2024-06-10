@@ -10,6 +10,7 @@ import { IoClose } from "react-icons/io5";
 import axios from "axios";
 import { useRef } from "react";
 import { useEffect } from "react";
+import { URL } from '../../Link';
 
 const ComposePost = ({ composeModal, post }) => {
   const { authUser } = useMainDashContext();
@@ -64,7 +65,7 @@ const ComposePost = ({ composeModal, post }) => {
       console.log("Post Data:", postData);
 
       await axios.post(
-        `http://localhost:3000/post/comment/${post?._id}/${post.author.handle}`,
+        `${URL}/post/comment/${post?._id}/${post.author.handle}`,
         postData
       );
 

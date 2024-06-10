@@ -10,6 +10,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import { FcGoogle } from "react-icons/fc";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
+import { URL } from "../../../Link";
 
 const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
   const { CreateAccount, setCreateAccount, setAuthUser } = useMainDashContext();
@@ -35,7 +36,7 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/SendMail",
+        `${URL}/api/auth/SendMail`,
         {
           username: CreateAccount.username,
           email: CreateAccount.email,
@@ -54,7 +55,7 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/verifyCra",
+       `${URL}/api/auth/verifyCra`,
         {
           otp: otp,
           CreateAccount,
@@ -76,7 +77,7 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
   const verifyToken = async (token) => {
     try {
       const tokenVerificationResponse = await axios.post(
-        "http://localhost:3000/api/auth/verifyToken",
+        `${URL}/api/auth/verifyToken`,
         { token }
       );
       console.log(tokenVerificationResponse.data.decoded);
@@ -101,7 +102,7 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/auth/login",
+        `${URL}api/auth/login`,
         credentials
       );
       const { token, user } = response.data;
@@ -130,7 +131,7 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
     const userObject = jwtDecode(response.credential);
 
     try {
-      const res = await axios.post("http://localhost:3000/api/auth/google", {
+      const res = await axios.post(`${URL}/api/auth/google`, {
         token: response.credential,
         body: JSON.stringify({ token: response.credential }),
       });

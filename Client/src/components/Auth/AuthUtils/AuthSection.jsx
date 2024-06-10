@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useEffect } from "react";
 import axios from "axios";
+import { URL } from "../../../../Link";
 
 const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
   const { authUser, setAuthUser } = useMainDashContext();
@@ -27,7 +28,7 @@ const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
     const userObject = jwtDecode(response.credential);
 
     try {
-      const res = await axios.post("http://localhost:3000/api/auth/google", {
+      const res = await axios.post(`${URL}/api/auth/google`, {
         token: response.credential,
         body: JSON.stringify({ token: response.credential }),
       });

@@ -8,6 +8,7 @@ import { useMainDashContext } from "../../../../Context/AppContext";
 import ImageKit from "imagekit";
 import { IoClose } from "react-icons/io5";
 import axios from "axios";
+import { URL } from "../../../../../Link";
 
 const NewPost = (composeModal) => {
   const { authUser ,setPostRender,postRender } = useMainDashContext();
@@ -60,7 +61,7 @@ const NewPost = (composeModal) => {
 
       console.log("Post Data:", postData);
 
-      await axios.post("http://localhost:3000/post/create", postData);
+      await axios.post(`${URL}/post/create`, postData);
 
       setContent("");
       setImages([]);

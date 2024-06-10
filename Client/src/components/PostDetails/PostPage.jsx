@@ -18,6 +18,7 @@ import { MdOutlineGifBox } from "react-icons/md";
 import { PiImageSquare } from "react-icons/pi";
 import Comments from "./Comments";
 import { useLocation } from "react-router-dom";
+import { URL } from "../../../Link";
 // import { useMainDashContext } from "../../Context/AppContext";
 
 const PostPage = ({setSideSec2}) => {
@@ -86,7 +87,7 @@ const PostPage = ({setSideSec2}) => {
       console.log("Post Data:", postData);
 
       await axios.post(
-        `http://localhost:3000/post/comment/${postId}/${handle}`,
+        `${URL}post/comment/${postId}/${handle}`,
         postData
       );
 
@@ -105,7 +106,7 @@ const PostPage = ({setSideSec2}) => {
     const fetchPost = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/post/${postId}/${handle}`
+          `${URL}/post/${postId}/${handle}`
         );
         console.log(response.data);
         setIsNested(response.data.isNested);
@@ -250,7 +251,7 @@ const PostPage = ({setSideSec2}) => {
     const sendNestedCommentsToBackend = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/post/nestedComment",
+          `${URL}/post/nestedComment`,
           {
             params: {
               nestedComments: JSON.stringify(nestedComments), // Convert nestedComments array to JSON string

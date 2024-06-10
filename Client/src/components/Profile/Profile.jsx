@@ -10,6 +10,7 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useMainDashContext } from "../../Context/AppContext";
+import { URL } from "../../../Link";
 
 const Profile = () => {
   const { username } = useParams();
@@ -26,7 +27,7 @@ const Profile = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `http://localhost:3000/post/profile/${username}`
+          `${URL}/post/profile/${username}`
         );
 
         if (response.data.success) {
@@ -53,8 +54,8 @@ const Profile = () => {
     setIsFollowLoading(true);
     try {
       const endpoint = isFollowing
-        ? `http://localhost:3000/post/unfollow/${userProfile._id}`
-        : `http://localhost:3000/post/follow/${userProfile._id}`;
+        ? `${URL}/post/unfollow/${userProfile._id}`
+        : `${URL}/post/follow/${userProfile._id}`;
 
       const response = await axios.post(endpoint, {
         follower: authUser.userId,
@@ -75,7 +76,7 @@ const Profile = () => {
       try {
     
         const response = await axios.get(
-          `http://localhost:3000/post/profile/checklogin/${authUser && authUser.userId}/${userProfile && userProfile._id}`
+          `${URL}/post/profile/checklogin/${authUser && authUser.userId}/${userProfile && userProfile._id}`
         );
       } catch (error) {
         
