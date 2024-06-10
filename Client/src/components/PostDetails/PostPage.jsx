@@ -87,7 +87,7 @@ const PostPage = ({setSideSec2}) => {
       console.log("Post Data:", postData);
 
       await axios.post(
-        `${URL}post/comment/${postId}/${handle}`,
+        `${URL}/post/comment/${postId}/${handle}`,
         postData
       );
 
