@@ -6,7 +6,7 @@ const parentId = new mongoose.Types.ObjectId();
 const { ObjectId } = mongoose.Types; // Destructure ObjectId from mongoose.Types
 export const createPost = async (req, res) => {
     const { content, images, userId } = req.body;
-    console.log('req.body:', req.body);
+    // console.log('req.body:', req.body);
 
     try {
         const mediaUrl = images.map((image) => image.url);
@@ -119,7 +119,7 @@ export const getPost = async (req, res) => {
             isNested = true;
         }
 
-        console.log('comment:', post);
+        // console.log('comment:', post);
         res.status(200).json({
             success: true,
             post: post,
@@ -160,25 +160,33 @@ export const createComment = async (req, res) => {
         const savedComment = await newComment.save();
 
         const checker = await PostModel.findOne({ _id: parentCommentId });
-        console.log('checker:', checker);
+        // console.log('checker:', checker);
         const checker2 = await CommentModel.findOne({ _id: parentCommentId });
-        console.log('checker2:', checker2);
+        // console.log('checker2:', checker2);
 
         let parentType;
         if (parentCommentId) {
             const parentPost = await PostModel.findById(parentCommentId);
-            console.log('parentPost:', parentPost);
+            // console.log('parentPost:', parentPost);
 
             if (checker && checker !== null) {
-                console.log('parentPost.hasComments: ', parentPost.hasComments);
+                // console.log('parentPost.hasComments: ', parentPost.hasComments);
                 parentType = 'post';
                 parentPost.hasComments = true;
                 parentPost.timeline.push(savedComment._id);
                 parentPost.parentPostId = parentCommentId;
                 await parentPost.save();
-                console.log("Top-level comment added to post", parentPost);
+                // console.log("Top-level comment added to post", parentPost);
             } else {
-
+                // console.log('parentPost.hasComments: ', parentCommentId);
+                parentType = 'comment';
+                const parentPost = await CommentModel.findById(parentCommentId);
+                parentPost.hasComments = true;
+                parentPost.timeline.push(savedComment._id);
+                parentPost.parentPostId = parentCommentId;
+                await parentPost.save();
+                // console.log("Nested comment added to comment", parentPost);
+            
             }
         } else {
             parentType = 'post'; // Top-level comment
@@ -192,3 +200,24 @@ export const createComment = async (req, res) => {
 };
 
 
+export const nestedComments = async (req, res) => {
+    try {
+        const { nestedComments } = req.query;
+        console.log('nested:', nestedComments);
+
+        const nestedCommentsArray = JSON.parse(nestedComments);
+        const populatedComments = await CommentModel.find({ _id: { $in: nestedCommentsArray } })
+            .populate({
+                path: 'user',
+                select: '-password', // Exclude the password field from the user details
+            });
+
+        res.status(200).json({
+            success: true,
+            nestedComments: populatedComments,
+        });
+    } catch (error) {
+        console.error("Error fetching nested comments:", error);
+        res.status(500).json({ success: false, message: "Failed to fetch nested comments" });
+    }
+};

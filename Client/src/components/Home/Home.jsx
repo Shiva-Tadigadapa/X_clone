@@ -9,10 +9,15 @@ import Profile from "../Profile/Profile";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import PostPage from "../PostDetails/PostPage";
+import { useLocation } from "react-router-dom";
 
 const Home = ({ Section }) => {
   const [posts, setPosts] = useState([]);
+  const location = useLocation();
+  const hiddenData  = location && location.state && location.state.hiddenData;
+  console.log(hiddenData,"hiddenData")
   useEffect(() => {
+    localStorage.removeItem("nestedComments");
     const fetchPosts = async () => {
       try {
         const response = await axios.get(
@@ -25,6 +30,8 @@ const Home = ({ Section }) => {
     };
 
     fetchPosts();
+    //remove the nestedcomments form local storage
+    
   }, []);
   return (
     <>
@@ -39,7 +46,7 @@ const Home = ({ Section }) => {
         {Section && Section === "profile" ? (
           <Profile posts={posts} />
         ) : Section && Section === "Post" ? (
-          <PostPage />
+          <PostPage hiddenData={hiddenData}/>
         ) : (
           <Feed Section={Section} posts={posts} />
         )}

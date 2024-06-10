@@ -18,6 +18,7 @@ const Profile = ({}) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+ 
   useEffect(() => {
     const fetchUserData = async () => {
       try {

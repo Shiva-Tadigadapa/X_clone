@@ -16,6 +16,7 @@ export const MainDashProvider = ({ children }) => {
     return storedComments ? JSON.parse(storedComments) : [];
   });
 
+  const [HiddenDatah,setHiddenDatah] = useState(null);
   //create an state which takes username and email and password
   const [CreateAccount, setCreateAccount] = useState({
     username: "",
@@ -33,6 +34,11 @@ export const MainDashProvider = ({ children }) => {
     localStorage.setItem("nestedComments", JSON.stringify(nestedComments));
   }, [nestedComments]);
 
+  useEffect(() => {
+    // Save hiddenData data to local storage whenever it changes
+    localStorage.setItem("hiddenData", JSON.stringify(HiddenDatah));
+  }, [HiddenDatah]);
+
   return (
     <MainDashContext.Provider
       value={{
@@ -44,6 +50,8 @@ export const MainDashProvider = ({ children }) => {
         setCreateAccount,
         nestedComments,
         setNestedComments,
+        HiddenDatah,
+        setHiddenDatah
       }}
     >
       {children}

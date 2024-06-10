@@ -3,8 +3,9 @@ import { FaRegComment, FaRetweet } from "react-icons/fa";
 import { FiHeart, FiShare } from "react-icons/fi";
 import { IoStatsChartSharp, IoBookmarksOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
+import { useRef, useEffect, useState } from "react";
 
-const Comments = ({ post, nested }) => {
+const Comments = ({ post, nested, hiddenData }) => {
   const renderImages = () => {
     const { mediaUrl } = post;
 
@@ -72,7 +73,14 @@ const Comments = ({ post, nested }) => {
       );
     }
   };
-  console.log(post, "post");
+  
+  const calHeightRef = useRef(null);
+  useEffect(() => {
+    if (calHeightRef.current) {
+      setCalHeight(calHeightRef.current.clientHeight + 12);
+    }
+  }, [post]);
+  // console.log(post, "podsdsdsdsst");
   return (
     <>
       <div
@@ -80,7 +88,8 @@ const Comments = ({ post, nested }) => {
           nested && nested ? "px-0 mt-2" : "px-6 py-3"
         }`}
       >
-        <div className="flex items-start w-full justify-start gap-3">
+        
+        <div className="flex items-start w-full justify-start gap-3" >
           <img
             src={post.user && post.user.profilePicture}
             className="h-10 w-10 mt-2 rounded-full"
@@ -100,7 +109,12 @@ const Comments = ({ post, nested }) => {
               </Link>
             </div>
             <Link
-              to={`/${(post.user && post.user.handle) || ""}/post/${post._id}`}
+              to={{
+                pathname: `/${(post.user && post.user.handle) || ""}/post/${
+                  post._id
+                }`,
+                state: { hiddenData: hiddenData },
+              }}
             >
               <div>
                 <p className=" text-lg ">{post?.comment}</p>

@@ -17,10 +17,13 @@ import { CgOptions } from "react-icons/cg";
 import { MdOutlineGifBox } from "react-icons/md";
 import { PiImageSquare } from "react-icons/pi";
 import Comments from "./Comments";
+import { useLocation } from "react-router-dom";
 // import { useMainDashContext } from "../../Context/AppContext";
 
-const PostPage = () => {
+const PostPage = ({}) => {
   const { handle, postId } = useParams();
+  const { HiddenDatah, setHiddenDatah } = useMainDashContext();
+
   console.log("handle:", handle, "postId:", postId);
   const { authUser } = useMainDashContext();
   const { nestedComments, setNestedComments } = useMainDashContext();
@@ -29,7 +32,16 @@ const PostPage = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isNested, setIsNested] = useState(false);
-
+  const LocalnestedComments = JSON.parse(
+    localStorage.getItem("nestedComments")
+  );
+  console.log("LocalnestedComments:", LocalnestedComments);
+  const [pageNestedComments, setPageNestedComments] = useState({});
+  const [hiddenData, setHiddenData] = useState(() => {
+    // Initialize state from localStorage if available
+    const storedData = localStorage.getItem("hiddenData");
+    return storedData ? JSON.parse(storedData) : {};
+  });
   const imagekit = new ImageKit({
     publicKey: "public_u7kxH7LgunPNp3hdLZv7edHsbBI=",
     privateKey: "private_8CshqjFmGQTjPw/kXsyOixM5ctM=",
@@ -93,9 +105,17 @@ const PostPage = () => {
         const response = await axios.get(
           `http://localhost:3000/post/${postId}/${handle}`
         );
-        console.log(response.data.post);
+        console.log(response.data);
         setIsNested(response.data.isNested);
         setPost(response.data.post);
+        setHiddenData((prevHiddenData) => {
+          const updatedHiddenData = {
+            ...prevHiddenData,
+            [postId]: response.data.post,
+          };
+          localStorage.setItem("hiddenData", JSON.stringify(updatedHiddenData));
+          return updatedHiddenData;
+        });
         setNestedComments((prevNestedComments) => {
           // Create a set to store unique IDs
           const uniqueIds = new Set(prevNestedComments);
@@ -128,9 +148,28 @@ const PostPage = () => {
     };
     fetchPost();
   }, [handle, postId]);
+  const getFirstHiddenData = () => {
+    if (!hiddenData || typeof hiddenData !== "object") return null;
 
+    const keys = Object.keys(hiddenData);
+    if (keys.length > 0) {
+      const firstKey = keys[0];
+      return hiddenData[firstKey];
+    }
+    return null;
+  };
+
+  const firstHiddenData = getFirstHiddenData();
+  console.log("First Hidden Data:", firstHiddenData);
   const renderImages = () => {
-    const { mediaUrl } = isNested ? post.parentPostId : post;
+    let mediaUrl;
+    if (isNested) {
+      mediaUrl = post.parentPostId
+        ? post.parentPostId.mediaUrl
+        : (firstHiddenData && firstHiddenData.mediaUrl) || [];
+    } else {
+      mediaUrl = post ? post.mediaUrl : [];
+    }
 
     if (!mediaUrl || mediaUrl.length === 0) return null;
 
@@ -205,6 +244,27 @@ const PostPage = () => {
     }
   }, [post]);
 
+  useEffect(() => {
+    const sendNestedCommentsToBackend = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:3000/post/nestedComment",
+          {
+            params: {
+              nestedComments: JSON.stringify(nestedComments), // Convert nestedComments array to JSON string
+            },
+          }
+        );
+        setPageNestedComments(response.data.nestedComments);
+        console.log("Response from backend:", response.data.nestedComments);
+      } catch (error) {
+        console.error("Error sending nested comments to backend:", error);
+      }
+    };
+
+    sendNestedCommentsToBackend();
+  }, [nestedComments]);
+
   return (
     <>
       <div className="flex flex-col border-b w-full h-full border-[#2f3336] items-start gap-3 px-6">
@@ -214,6 +274,7 @@ const PostPage = () => {
             //remove nested from the local storage
             onClick={() => {
               localStorage.removeItem("nestedComments");
+              localStorage.removeItem("hiddenData");
             }}
           >
             <FaArrowLeft className="text-xl" />
@@ -229,10 +290,13 @@ const PostPage = () => {
                 <>
                   <img
                     src={
-                      post &&
-                      post.parentPostId &&
-                      post.parentPostId.author &&
-                      post.parentPostId.author.profilePicture
+                      (post &&
+                        post.parentPostId &&
+                        post.parentPostId.author &&
+                        post.parentPostId.author.profilePicture) ||
+                      (firstHiddenData &&
+                        firstHiddenData.author &&
+                        firstHiddenData.author.profilePicture)
                     }
                     className="h-10 w-10 mt-2 rounded-full"
                     alt="profile"
@@ -243,29 +307,47 @@ const PostPage = () => {
                   />
                 </>
               </div>
+              
               <div className="items-start  flex-col  flex">
                 <Link
-                  to={`/profile/${
-                    post.parentPostId.author && post.parentPostId.author.handle
-                  }`}
+                  to={{
+                    pathname: `/profile/${
+                      (post &&
+                        post.parentPostId &&
+                        post.parentPostId.author &&
+                        post.parentPostId.author.handle) ||
+                      (post && post.user && post.user.handle)
+                    }`,
+                  }}
                 >
                   <h1 className="text-lg  w-72 font-semibold">
-                    {post.parentPostId.author &&
-                      post.parentPostId.author.username}
+                    {(post &&
+                      post.parentPostId &&
+                      post.parentPostId.author &&
+                      post.parentPostId.author.handle) ||
+                      (post && post.user && post.user.handle)}
                   </h1>
                 </Link>
                 <Link
                   to={`/profile/${
-                    post.parentPostId.author && post.parentPostId.author.handle
+                    (post &&
+                      post.parentPostId &&
+                      post.parentPostId.author &&
+                      post.parentPostId.author.handle) ||
+                    (post && post.user && post.user.handle)
                   }`}
                 >
                   <p className="text-gray-500">
                     @
-                    {post.parentPostId.author &&
-                      post.parentPostId.author.handle}
+                    {(post &&
+                      post.parentPostId &&
+                      post.parentPostId.author &&
+                      post.parentPostId.author.handle) ||
+                      (post && post.user && post.user.handle)}
                   </p>
                 </Link>
               </div>
+              
             </div>
             <div className="cal-height pl-12" ref={calHeightRef}>
               <div className="ml-1">
@@ -275,9 +357,9 @@ const PostPage = () => {
                 {renderImages()}
               </div>
             </div>
-            {post.timeline &&
-              post.timeline.map((comment) => (
-                <Comments key={comment._id} post={comment} nested={1} />
+            {pageNestedComments &&
+              pageNestedComments.map((comment) => (
+                <Comments key={comment._id} post={comment} nested={1}  />
               ))}
           </div>
         ) : (
@@ -412,7 +494,7 @@ const PostPage = () => {
         <div className="w-full">
           {post.timeline &&
             post.timeline
-              .slice(post && post.nestedComment ? 1 : 0)
+              .slice(post && post.nestedComment)
               .map((comment) => <Comments key={comment._id} post={comment} />)}
         </div>
       </div>
