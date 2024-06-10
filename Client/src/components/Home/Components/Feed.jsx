@@ -5,20 +5,28 @@ import FeedPost from "./FeedUtils/FeedPost";
 import axios from "axios";
 
 const Feed = ({ Section, posts }) => {
-  const { authUser } = useMainDashContext();
+  const { authUser ,feedNav,setFeedNav} = useMainDashContext();
 
   return (
     <div className={`flex items-start flex-col w-full`}>
-      <div className="text-lg font-semibold flex bg-black/30 backdrop-blur-md flex-col pt-5 sticky top-0 w-full items-center justify-center">
-        <div className="flex w-full justify-around">
-          <button>For You</button>
-          <button>Following</button>
+      <div className="text-lg font-semibold flex bg-black/30 backdrop-blur-md flex-col  sticky top-0 w-full items-center justify-center">
+        <div className="flex w-full   items-center justify-between ">
+          <div className="  flex items-center justify-center cursor-pointer  w-full pt-3  backdrop-blur-md hover:backdrop-blur-sm hover:bg-[#181818]/80"
+          onClick={()=>setFeedNav("For You")}
+          >
+            <button className={`${ feedNav==="For You"? 'border-b-4 border-[#1d9bf0]    ':'border-b-0'} pb-2`}>For You</button>
+          </div>
+          <div className=" pt-3  w-full flex items-center justify-center cursor-pointer backdrop-blur-md hover:backdrop-blur-sm hover:bg-[#181818]/80"
+          onClick={()=>setFeedNav("Following")}
+          >
+            <button className={`${ feedNav==="Following"? 'border-b-4 border-[#1d9bf0]':'border-b-0'} pb-2`}>Following</button>
+          </div>
         </div>
-        <div className="bg-[#2f3336] mt-3 h-[1px] w-full" />
+        <div className="bg-[#2f3336]  h-[1px] w-full" />
       </div>
       <NewPost />
       <div className="bg-[#2f3336] h-[1px] w-full" />
-      <div className="w-full flex items-center py-2.5 justify-center">
+      <div className="w-full flex items-center py-2.5 justify-center hover:bg-[#181818] cursor-pointer">
         <h1 className="text-[#1d9bf0] text-lg">Show {posts.length} posts</h1>
       </div>
       <div className="bg-[#2f3336] h-[1px] w-full" />

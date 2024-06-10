@@ -29,6 +29,7 @@ function App() {
           <Route path="/profile/:username" element={<Home  Section={"profile"}/>} />
           <Route path="/:handle/post/:postId" element={<Home Section={"Post"} />} />
           <Route path="/logout" element={<SignIn />} />
+          <Route path="/compose/post" element={<Home />} />
         </Routes>
       </div>
     </>

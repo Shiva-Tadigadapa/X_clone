@@ -4,6 +4,7 @@ const MainDashContext = createContext();
 
 export const MainDashProvider = ({ children }) => {
   const [isDarkMode, setIsDarkMode] = useState("true");
+  const [feedNav, setFeedNav] = useState("For You");
   const [authUser, setAuthUser] = useState(() => {
     // Initialize user state from local storage if available
     const storedUser = localStorage.getItem("user");
@@ -52,6 +53,8 @@ export const MainDashProvider = ({ children }) => {
         setNestedComments,
         HiddenDatah,
         setHiddenDatah,
+        feedNav,
+        setFeedNav,
       }}
     >
       {children}

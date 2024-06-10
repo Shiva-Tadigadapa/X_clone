@@ -32,6 +32,7 @@ const PostPage = ({}) => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isNested, setIsNested] = useState(false);
+  const [rerender, setRerender] = useState(false);
   const LocalnestedComments = JSON.parse(
     localStorage.getItem("nestedComments")
   );
@@ -91,6 +92,7 @@ const PostPage = ({}) => {
 
       setContent("");
       setImages([]);
+      setRerender(!rerender);
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {
@@ -147,7 +149,7 @@ const PostPage = ({}) => {
       }
     };
     fetchPost();
-  }, [handle, postId]);
+  }, [handle, postId,rerender]);
   const getFirstHiddenData = () => {
     if (!hiddenData || typeof hiddenData !== "object") return null;
 

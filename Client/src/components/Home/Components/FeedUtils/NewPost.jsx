@@ -9,7 +9,7 @@ import ImageKit from "imagekit";
 import { IoClose } from "react-icons/io5";
 import axios from "axios";
 
-const NewPost = () => {
+const NewPost = (composeModal) => {
   const { authUser } = useMainDashContext();
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
@@ -71,7 +71,9 @@ const NewPost = () => {
   };
 
   return (
-    <div className="rounded-2xl max-h-[30rem] flex px-10 py-5 w-full gap-4 overflow-y-auto">
+    <div
+      className={`rounded-2xl max-h-[30rem] flex px-10 py-5 w-full gap-4 overflow-y-auto `}
+    >
       <img
         src={authUser?.picture}
         className="h-10 w-10 rounded-full"

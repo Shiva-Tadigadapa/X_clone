@@ -69,7 +69,6 @@ export const profile = async (req, res) => {
 
 
 
-
 export const getPost = async (req, res) => {
     const { postId } = req.params;
 
@@ -87,6 +86,7 @@ export const getPost = async (req, res) => {
                 })
                 .populate({
                     path: 'timeline', // Populate the timeline field with comment references
+                    options: { sort: { createdAt: -1 } }, // Sort timeline in descending order
                     select: '_id comment user createdAt', // Select only the essential fields
                     populate: {
                         path: 'user',
@@ -101,16 +101,19 @@ export const getPost = async (req, res) => {
                 .populate({
                     path: 'user',
                     select: '-password', // Exclude the password field from the user details
-                }).populate({
+                })
+                .populate({
                     path: 'timeline', // Populate the timeline field with comment references
+                    options: { sort: { createdAt: -1 } }, // Sort timeline in descending order
                     select: '_id comment user createdAt', // Select only the essential fields
                     populate: {
                         path: 'user',
-                        select: '-password',
+                        select: '-password', // Exclude the password field from the user details
                     }
-                }).populate({
+                })
+                .populate({
                     path: 'parentPostId',
-                    select: '_id content author createdAt mediaUrl likes hasComments ',
+                    select: '_id content author createdAt mediaUrl likes hasComments',
                     populate: {
                         path: 'author',
                         select: '-password',
@@ -119,21 +122,18 @@ export const getPost = async (req, res) => {
             isNested = true;
         }
 
-        // console.log('comment:', post);
+        // Send the post data along with the timeline (comment references) back to the frontend
         res.status(200).json({
             success: true,
             post: post,
             isNested: isNested
         });
-    }
-    catch (error) {
+    } catch (error) {
         console.error("Error fetching post:", error);
         res.status(500).json({ success: false, message: "Failed to fetch post" });
     }
-    // Send the post data along with the timeline (comment references) back to the frontend
-
-
 };
+
 
 export const createComment = async (req, res) => {
     const { parentCommentId, userId, content, mediaUrl } = req.body;
