@@ -10,6 +10,7 @@ import axios from "axios";
 import PostPage from "../PostDetails/PostPage";
 import { useLocation } from "react-router-dom";
 import { useMainDashContext } from "../../Context/AppContext";
+import { URL } from "../../../Link";
 
 const Home = ({ Section }) => {
   const [posts, setPosts] = useState([]);
@@ -23,7 +24,7 @@ const Home = ({ Section }) => {
     const fetchPosts = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3000/post/getallposts"
+         ` ${URL}/post/getallposts`
         );
         setPosts(response.data.posts);
       } catch (error) {
