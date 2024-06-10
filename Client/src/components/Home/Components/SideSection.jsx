@@ -15,12 +15,13 @@ const SideSection = () => {
   const { authUser } = useMainDashContext();
   return (
     <>
+      {/* bg-[#181818]  */}
       <div className=" px-10 flex flex-col items-start w-full  justify-between  h-full py-2">
         <div className=" flex flex-col  gap-6   ">
           <img src={Xicon} className="h-14  w-14 -ml-2" alt="profile" />
-          <button className=" flex  items-center gap-3 text-2xl font-semibold">
+          <button className=" flex    rounded-full w-full  items-center gap-3 text-2xl font-semibold">
             {" "}
-            <GoHomeFill className="text-3xl" />
+            <GoHomeFill className="text-3xl " />
             Home
           </button>
           <button className=" flex  items-center gap-3 text-xl  text-gray-300">
@@ -38,34 +39,36 @@ const SideSection = () => {
             <IoBookmarksOutline className="text-2xl" />
             Bookmarks
           </button>
-          <Link to={`/${authUser.handle}`} >
-          <button className=" flex  items-center gap-3 text-xl ">
-            <IoPersonOutline className="text-2xl" />
-            Profile
-          </button>
+          <Link to={`/profile/${authUser.handle}`}>
+            <button className=" flex  items-center gap-3 text-xl ">
+              <IoPersonOutline className="text-2xl" />
+              Profile
+            </button>
           </Link>
           <button className=" flex  items-center gap-3 text-xl ">
             {" "}
             <CiCircleMore className="text-2xl" />
             More
           </button>
-          <Link  to={`/post/new`} className=" flex  items-center gap-3 text-xl ">
-          <button className=" bg-[#1d9bf0] h-12 w-48  rounded-full ">
-            Post
-          </button>
+          <Link to={`/post/new`} className=" flex  items-center gap-3 text-xl ">
+            <button className=" bg-[#1d9bf0] h-12 w-48  rounded-full ">
+              Post
+            </button>
           </Link>
         </div>
-        <div className="flex  h-14 gap-2 w-48 rounded-full  text-lg items-start mb-2  justify-start text-white font-semibold">
-          <img
-            src={authUser?.picture}
-            className="h-10 w-10 rounded-full"
-            alt="profile"
-          />
-          <div>
-            <h1 className="text-md font-semibold">{authUser?.name}</h1>
-            <h2 className="text-gray-500 text-sm">@{authUser?.handle}</h2>
+        <Link to={`/logout`}>
+          <div className="flex   pl-2 w-56  h-14 gap-3 hover:bg-[#181818] cursor-pointer      items-center rounded-full  text-lg  justify-center mb-2   text-white font-semibold">
+            <img
+              src={authUser?.picture}
+              className="h-10 w-10 rounded-full"
+              alt="profile"
+            />
+            <div className="   w-full ">
+              <h1 className="text-[16px] font-semibold">{authUser?.name}</h1>
+              <h2 className="text-gray-500 text-sm">@{authUser?.handle}</h2>
+            </div>
           </div>
-        </div>
+        </Link>
       </div>
     </>
   );

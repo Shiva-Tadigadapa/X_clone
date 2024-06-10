@@ -16,7 +16,7 @@ export const MainDashProvider = ({ children }) => {
     return storedComments ? JSON.parse(storedComments) : [];
   });
 
-  const [HiddenDatah,setHiddenDatah] = useState(null);
+  const [HiddenDatah, setHiddenDatah] = useState(null);
   //create an state which takes username and email and password
   const [CreateAccount, setCreateAccount] = useState({
     username: "",
@@ -51,7 +51,7 @@ export const MainDashProvider = ({ children }) => {
         nestedComments,
         setNestedComments,
         HiddenDatah,
-        setHiddenDatah
+        setHiddenDatah,
       }}
     >
       {children}

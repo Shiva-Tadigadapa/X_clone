@@ -307,7 +307,7 @@ const PostPage = ({}) => {
                   />
                 </>
               </div>
-              
+
               <div className="items-start  flex-col  flex">
                 <Link
                   to={{
@@ -347,7 +347,6 @@ const PostPage = ({}) => {
                   </p>
                 </Link>
               </div>
-              
             </div>
             <div className="cal-height pl-12" ref={calHeightRef}>
               <div className="ml-1">
@@ -359,7 +358,7 @@ const PostPage = ({}) => {
             </div>
             {pageNestedComments &&
               pageNestedComments.map((comment) => (
-                <Comments key={comment._id} post={comment} nested={1}  />
+                <Comments key={comment._id} post={comment} nested={1} />
               ))}
           </div>
         ) : (

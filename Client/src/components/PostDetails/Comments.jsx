@@ -73,8 +73,9 @@ const Comments = ({ post, nested, hiddenData }) => {
       );
     }
   };
-  
+
   const calHeightRef = useRef(null);
+  const [calHeight, setCalHeight] = useState(0);
   useEffect(() => {
     if (calHeightRef.current) {
       setCalHeight(calHeightRef.current.clientHeight + 12);
@@ -88,8 +89,7 @@ const Comments = ({ post, nested, hiddenData }) => {
           nested && nested ? "px-0 mt-2" : "px-6 py-3"
         }`}
       >
-        
-        <div className="flex items-start w-full justify-start gap-3" >
+        <div className="flex items-start w-full justify-start gap-3">
           <img
             src={post.user && post.user.profilePicture}
             className="h-10 w-10 mt-2 rounded-full"

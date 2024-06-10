@@ -78,10 +78,10 @@ const NewPost = () => {
         alt="profile"
       />
       <div className="w-full">
-        <input
+        <textarea
           type="text"
           placeholder="What's happening?"
-          className="w-full h-10 text-2xl border-none active:outline-none outline-none focus:border-none bg-transparent text-white"
+          className="w-full h-14 text-2xl border-none active:outline-none outline-none focus:border-none bg-transparent text-white"
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />

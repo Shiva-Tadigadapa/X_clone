@@ -221,3 +221,125 @@ export const nestedComments = async (req, res) => {
         res.status(500).json({ success: false, message: "Failed to fetch nested comments" });
     }
 };
+
+
+export const followRequest = async (req, res) => {
+    const { id } = req.params; // ID of the user to be followed
+    const { follower } = req.body; // ID of the follower
+
+    console.log("User to be followed:", id);
+    console.log("Follower:", follower);
+
+    try {
+        // Find the user to be followed
+        const userToBeFollowed = await UserModel.findById(id);
+        if (!userToBeFollowed) {
+            return res.status(404).json({
+                success: false,
+                message: "User to be followed not found",
+            });
+        }
+
+        // Find the follower
+        const followerUser = await UserModel.findById(follower);
+        if (!followerUser) {
+            return res.status(404).json({
+                success: false,
+                message: "Follower user not found",
+            });
+        }
+
+        // Check if already following
+        if (userToBeFollowed.followers.includes(follower) || followerUser.following.includes(id)) {
+            return res.status(400).json({
+                success: false,
+                message: "User is already following",
+            });
+        }
+
+        // Add follower to the user's followers array
+        userToBeFollowed.followers.push(follower);
+
+        // Add user to the follower's following array
+        followerUser.following.push(id);
+
+        // Save both users
+        await userToBeFollowed.save();
+        await followerUser.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Successfully followed the user",
+            userToBeFollowed,
+            followerUser
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: "Internal Server Error",
+        });
+    }
+};
+
+export const UnfollowRequest = async (req, res) => {
+    const { id } = req.params; // the ID of the user to be unfollowed
+    const { follower } = req.body; // the ID of the user who is unfollowing
+    console.log(id, follower);
+  
+    try {
+      // Find the user to be unfollowed
+      const userToUnfollow = await UserModel.findById(id);
+  
+      // Find the follower
+      const followerUser = await UserModel.findById(follower);
+  
+      if (!userToUnfollow || !followerUser) {
+        return res.status(404).json({
+          success: false,
+          message: "User not found",
+        });
+      }
+  
+      // Remove followerUser from the userToUnfollow's followers list
+      userToUnfollow.followers = userToUnfollow.followers.filter(
+        (followerId) => followerId.toString() !== follower.toString()
+      );
+  
+      // Remove userToUnfollow from the followerUser's following list
+      followerUser.following = followerUser.following.filter(
+        (followingId) => followingId.toString() !== id.toString()
+      );
+  
+      // Save both users
+      await userToUnfollow.save();
+      await followerUser.save();
+  
+      res.status(200).json({
+        success: true,
+        message: "Unfollowed successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+      });
+    }
+  };
+  
+
+export const checkUserFollowing = async (req, res) => {
+   
+
+    try {
+        const { followerId } = req.query;
+        const { userId } = req.params;
+        
+        res.status(200).json({ success: true, isFollowing });
+      } catch (error) {
+        console.error('Error checking follow status:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+      }
+};
+
