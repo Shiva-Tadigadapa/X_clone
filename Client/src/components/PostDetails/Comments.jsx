@@ -4,7 +4,7 @@ import { FiHeart, FiShare } from "react-icons/fi";
 import { IoStatsChartSharp, IoBookmarksOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 
-const Comments = ({ post }) => {
+const Comments = ({ post, nested }) => {
   const renderImages = () => {
     const { mediaUrl } = post;
 
@@ -75,7 +75,11 @@ const Comments = ({ post }) => {
   console.log(post, "post");
   return (
     <>
-      <div className="flex flex-col border-b  w-full border-[#2f3336] items-start py-3 gap-2 px-6">
+      <div
+        className={`flex flex-col border-b  w-full border-[#2f3336] items-start  gap-2 ${
+          nested && nested ? "px-0 mt-2" : "px-6 py-3"
+        }`}
+      >
         <div className="flex items-start w-full justify-start gap-3">
           <img
             src={post.userDetails && post.userDetails.profilePicture}

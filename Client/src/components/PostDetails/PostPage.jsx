@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { FaRegComment, FaRetweet } from "react-icons/fa";
 import { FiHeart } from "react-icons/fi";
 import { IoStatsChartSharp, IoBookmarksOutline } from "react-icons/io5";
@@ -18,9 +18,10 @@ import { CgOptions } from "react-icons/cg";
 import { MdOutlineGifBox } from "react-icons/md";
 import { PiImageSquare } from "react-icons/pi";
 import FeedPost from "../Home/Components/FeedUtils/FeedPost";
- import Comments from "./Comments";
+import Comments from "./Comments";
 const PostPage = () => {
   const { handle, postId } = useParams();
+  console.log("handle:", handle, "postId:", postId)
   const { authUser } = useMainDashContext();
   //   console.log("authUser:", authUser);
   const [post, setPost] = useState({});
@@ -68,6 +69,7 @@ const PostPage = () => {
         content,
         images,
         userId: authUser.userId,
+        parentCommentId : postId,
       };
 
       console.log("Post Data:", postData);
@@ -169,10 +171,18 @@ const PostPage = () => {
       );
     }
   };
+  const [calHeight, setCalHeight] = useState(0);
+  const calHeightRef = useRef(null);
+  useEffect(() => {
+    // Calculate the height of the element when the component mounts or updates
+    if (calHeightRef.current) {
+      setCalHeight(calHeightRef.current.clientHeight + 12);
+    }
+  }, [post]); // Recalculate height whenever the post changes
 
   return (
     <>
-      <div className="flex flex-col border-b w-full border-[#2f3336] items-start  gap-3 px-6">
+      <div className="flex flex-col border-b w-full h-full border-[#2f3336] items-start  gap-3 px-6">
         <div className=" px-4 py-4 w-full justify-start  sticky top-0  bg-black/70 backdrop-blur-md items-center gap-8 flex">
           <Link to="/home">
             <FaArrowLeft className="text-xl" />
@@ -181,35 +191,106 @@ const PostPage = () => {
             <h1 className=" text-xl font-bold">Post</h1>
           </div>
         </div>
-        <div className="flex items-start  flex-col justify-center ">
-          <div className="flex items-start gap-3">
-            <img
-              src={
-                post && post.authorDetails && post.authorDetails.profilePicture
-              }
-              className="h-10 w-10 mt-2 rounded-full"
-              alt="profile"
-            />
-            <div className="items-start flex-col flex ">
-              <Link to={`/profile/${handle}`}>
-                <h1 className="text-lg font-semibold">{handle}</h1>
-              </Link>
-              <Link to={`/profile/${handle}`}>
-                <p className="text-gray-500">@{handle}</p>
-              </Link>
+        {post && post.nestedComment ? (
+          <div className="flex items-start  flex-col h-full justify-center ">
+            <div className="flex items-start gap-3 h-full ">
+              <div className=" flex flex-col  relative  h-full w-full  items-center gap-2">
+                <>
+                  <img
+                    src={
+                      post &&
+                      post.authorDetails &&
+                      post.authorDetails.profilePicture
+                    }
+                    className="h-10 w-10 mt-2 rounded-full"
+                    alt="profile"
+                  />
+                  <div
+                    className={`bg-gray-600   mt-1 top-12  absolute w-[2px]`}
+                    style={{ height: `${calHeight && calHeight}px` }}
+                  />
+                </>
+              </div>
+
+              <div className="items-start flex-col flex ">
+                <Link
+                  to={`/profile/${
+                    post.authorDetails && post.authorDetails.handle
+                  }`}
+                >
+                  <h1 className="text-lg font-semibold">
+                    {post.authorDetails && post.authorDetails.handle}
+                  </h1>
+                </Link>
+                <Link
+                  to={`/profile/${
+                    post.authorDetails && post.authorDetails.handle
+                  }`}
+                >
+                  <p className="text-gray-500">
+                    @{post.authorDetails && post.authorDetails.handle}
+                  </p>
+                </Link>
+              </div>
             </div>
-          </div>
-          <div className=" ">
-            <div className="  ml-1 ">
-              <p className=" text-lg     mt-2">{post && post.content}</p>
-              {renderImages()}
+            <div className="  cal-height pl-12 " ref={calHeightRef}>
+              <div className="  ml-1 ">
+                <p className=" text-lg     mt-2">{post && post.content}</p>
+                {renderImages()}
+              </div>
             </div>
+            {post.comments &&
+              post.comments.map((comment) => (
+                <Comments key={comment._id} post={comment} nested={1} />
+              ))}
           </div>
-        </div>
-        <h1 className="  text-[17px] tracking-wider  text-gray-500  font-medium">
-          {" "}
-          5:40 PM . Jun 9, 2024 . 1.1M Views
-        </h1>
+        ) : (
+          <>
+            <div className="flex items-start  flex-col justify-center ">
+              <div className="flex items-start gap-3">
+                <img
+                  src={
+                    post &&
+                    post.authorDetails &&
+                    post.authorDetails.profilePicture
+                  }
+                  className="h-10 w-10 mt-2 rounded-full"
+                  alt="profile"
+                />
+                <div className="items-start flex-col flex ">
+                  <Link
+                    to={`/profile/${
+                      post.authorDetails && post.authorDetails.handle
+                    }`}
+                  >
+                    <h1 className="text-lg font-semibold">
+                      {post.authorDetails && post.authorDetails.handle}
+                    </h1>
+                  </Link>
+                  <Link
+                    to={`/profile/${
+                      post.authorDetails && post.authorDetails.handle
+                    }`}
+                  >
+                    <p className="text-gray-500">
+                      @{post.authorDetails && post.authorDetails.handle}
+                    </p>
+                  </Link>
+                </div>
+              </div>
+              <div className=" ">
+                <div className="  ml-1 ">
+                  <p className=" text-lg     mt-2">{post && post.content}</p>
+                  {renderImages()}
+                </div>
+              </div>
+            </div>
+            <h1 className="  text-[17px] tracking-wider  text-gray-500  font-medium">
+              {" "}
+              5:40 PM . Jun 9, 2024 . 1.1M Views
+            </h1>
+          </>
+        )}
 
         <div className=" w-full px-4  h-[1px] bg-gray-600 " />
         <div className="text-gray-500 flex  justify-around  text-xl -ml-4   w-full">
@@ -306,12 +387,10 @@ const PostPage = () => {
         </div>
         <div className=" w-full  h-[1px] bg-gray-600 " />
         <div className=" w-full">
-           {
-            post.comments &&
-            post.comments.map((comment) => (
-              <Comments key={comment._id} post={comment} />
-            ))
-           }
+          {post.comments &&
+            post.comments
+              .slice(post && post.nestedComment ? 1 : 0) // Conditionally start from the second element
+              .map((comment) => <Comments key={comment._id} post={comment} />)}
         </div>
       </div>
     </>
