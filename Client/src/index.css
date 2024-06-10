@@ -38,3 +38,10 @@ input[type=number] {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: #5a5a5a;
 }
+
+body{
+  display: flex;
+  background-color: black;
+   align-items: center;
+  justify-content: center;
+}

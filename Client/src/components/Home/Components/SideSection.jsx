@@ -16,7 +16,7 @@ const SideSection = () => {
   return (
     <>
       {/* bg-[#181818]  */}
-      <div className=" px-10 flex flex-col items-start w-full  justify-between  h-full py-2">
+      <div className=" px-10 lg:flex flex-col items-start  w-full    sm:hidden md:hidden  hidden justify-between  h-full py-2">
         <div className=" flex flex-col  gap-6   ">
           <img src={Xicon} className="h-14  w-14 -ml-2" alt="profile" />
           <button className=" flex    rounded-full w-full  items-center gap-3 text-2xl font-semibold">

@@ -39,7 +39,7 @@ const Home = ({ Section }) => {
       <div
         className={` ${
           Section === "newPost" ? " fixed  bg-black" : ""
-        } flex justify-between h-full items-start`}
+        } flex justify-between  max-w-[1400px] h-full items-start`}
       >
         <div className="h-screen border-[#2f3336] border-r sticky top-0">
           <SideSection />
