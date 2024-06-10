@@ -329,33 +329,20 @@ export const UnfollowRequest = async (req, res) => {
   };
   
 
-export const checkUserFollowing = async (req, res) => {
-   
+export const checklogin = async (req, res) => {
+    const { authId, userId } = req.params;
 
     try {
-        
-        const { id } = req.params; // ID of the user to be checked
-        const { followerId } = req.query; // ID of the follower
-        console.log('id:', id);
-        console.log('followerId:', followerId);
-        // Find the user to be checked
-        const userToBeChecked = await UserModel.findById(id);
-        if (!userToBeChecked) {
-            return res.status(404).json({ success: false, message: 'User not found' });
+        const user = await  UserModel.findById(authId);
+        const userProfile = await UserModel.findById(userId);
+        let isFollowing = false;
+        if (userProfile.followers.includes(authId)) {
+            isFollowing = true;
         }
-        
-
-        // Check if the user is already following
-        const isFollowing = userToBeChecked.followers.includes(followerId);
-        console.log('isFollowing:', isFollowing);
-
-
-        
-
         res.status(200).json({ success: true, isFollowing });
-      } catch (error) {
-        console.error('Error checking follow status:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error' });
-      }
-};
-
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+}

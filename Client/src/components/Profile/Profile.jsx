@@ -32,6 +32,7 @@ const Profile = () => {
         if (response.data.success) {
           setUserProfile(response.data.userProfile);
           setPosts(response.data.userProfile.posts);
+          setIsFollowing(response.data.userProfile.followers.includes(authUser.userId));
         }
 
         setLoading(false);
@@ -41,26 +42,7 @@ const Profile = () => {
       }
     };
 
-    const checkFollowing = async () => {
-      try {
-        const response = await axios.get(
-          `http://localhost:3000/post/check/${userProfile._id}`,
-          {
-            params: { followerId: authUser.userId },
-          }
-        );
-
-        if (response.data.success) {
-          setIsFollowing(response.data.isFollowing);
-        }
-      } catch (error) {
-        console.error("Error checking follow status:", error);
-      }
-    };
-
     fetchUserData();
-    checkFollowing(); // Call the checkFollowing function when the component mounts
-
   }, [username, authUser.userId]);
 
   const setHandle = (username) => {
@@ -87,6 +69,22 @@ const Profile = () => {
       setIsFollowLoading(false);
     }
   };
+ 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+    
+        const response = await axios.get(
+          `http://localhost:3000/post/profile/checklogin/${authUser && authUser.userId}/${userProfile && userProfile._id}`
+        );
+      } catch (error) {
+        
+        setLoading(false);
+      }
+    
+    }
+     fetchUserData();
+  }, [userProfile && userProfile, authUser.userId]);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -99,6 +97,8 @@ const Profile = () => {
   if (!userProfile) {
     return <div>No profile found</div>;
   }
+
+
 
   return (
     <>
