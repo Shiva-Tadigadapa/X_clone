@@ -317,8 +317,6 @@ const PostPage = ({ setSideSec2 }) => {
                   to={{
                     pathname: `/profile/${
                       (post &&
-                        post.parentPostId &&
-                        post.parentPostId.author &&
                         post.parentPostId.author.handle) ||
                       (post && post.user && post.user.handle)
                     }`,
@@ -326,8 +324,6 @@ const PostPage = ({ setSideSec2 }) => {
                 >
                   <h1 className="text-lg  w-72 font-semibold">
                     {(post &&
-                      post.parentPostId &&
-                      post.parentPostId.author &&
                       post.parentPostId.author.handle) ||
                       (post && post.user && post.user.handle)}
                   </h1>
@@ -335,8 +331,6 @@ const PostPage = ({ setSideSec2 }) => {
                 <Link
                   to={`/profile/${
                     (post &&
-                      post.parentPostId &&
-                      post.parentPostId.author &&
                       post.parentPostId.author.handle) ||
                     (post && post.user && post.user.handle)
                   }`}
@@ -344,8 +338,6 @@ const PostPage = ({ setSideSec2 }) => {
                   <p className="text-gray-500">
                     @
                     {(post &&
-                      post.parentPostId &&
-                      post.parentPostId.author &&
                       post.parentPostId.author.handle) ||
                       (post && post.user && post.user.handle)}
                   </p>
