@@ -1,12 +1,12 @@
 # SpeakX Assignment
 
-Welcome to the SpeakX Assignment repository. This project is a full-stack clone of [Twitter (formerly x.com)](https://twitter.com/). Below you will find information about the project's features, setup instructions, and other relevant details.
+Welcome to the SpeakX Assignment repository. This project is a full-stack clone of [X.com (formerly twitter.com)](https://twitter.com/). Below you will find information about the project's features, setup instructions, and other relevant details.
 
 ## Project Links
 
-- **Backend URL**: [SpeakX Backend](https://speakx-assignment-m1b0.onrender.com/){:target="_blank"}
-- **Frontend URL**: [SpeakX Frontend](https://speak-x-shiva-assignment.vercel.app/){:target="_blank"}
-- **Repository**: [SpeakX_Assignment](https://github.com/Shiva-Tadigadapa/SpeakX_Assignment/){:target="_blank"}
+- **Backend URL**: [SpeakX Backend](https://speakx-assignment-m1b0.onrender.com/)
+- **Frontend URL**: [SpeakX Frontend](https://speak-x-shiva-assignment.vercel.app/)
+- **Repository**: [SpeakX_Assignment](https://github.com/Shiva-Tadigadapa/SpeakX_Assignment/)
 
 ## Features
 
