@@ -1,4 +1,3 @@
-
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import otpGenerator from 'otp-generator';
@@ -6,48 +5,51 @@ import OtpModel from '../Models/otpModel.js';
 import UserModel from '../Models/userModel.js';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
+
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-
 const client = new OAuth2Client(CLIENT_ID);
-
 
 export const googleAuth = async (req, res) => {
     const { token } = req.body;
 
     try {
+        // Verify the token
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: CLIENT_ID,
         });
+
         const payload = ticket.getPayload();
-        console.log(payload)
-        const { name , email, picture } = payload;
+        const { name, email, picture } = payload;
 
         // Check if the user already exists in the database
         let user = await UserModel.findOne({ email });
-        const username = name;
         if (!user) {
             // If the user does not exist, create a new user in the database
-            const newUser = new UserModel({
-                username,
+            user = new UserModel({
+                username: name,
                 email,
                 profilePicture: picture,
             });
-            user = await newUser.save();
+            user = await user.save();
         }
-        
-        //get the user object id
+
+        // Create a JWT token for the authenticated user
         const userId = user._id;
+        const jwtToken = jwt.sign({ userId, email }, process.env.JWT_SECRET, {
+            expiresIn: '24h',
+        });
 
-
+        // Send response back to the client
         res.status(200).json({
             success: true,
             message: "Google authentication successful",
             user: {
                 userId: user._id,
-                name: payload.name,
+                name: user.username,
                 email: user.email,
-                picture: payload.picture,
+                picture: user.profilePicture,
+                token: jwtToken,
             },
         });
     } catch (error) {

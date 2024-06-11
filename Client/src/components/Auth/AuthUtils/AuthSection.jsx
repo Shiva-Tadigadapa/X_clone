@@ -27,6 +27,9 @@ const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
     console.log("Google Login Success:", response);
     const userObject = jwtDecode(response.credential);
 
+     
+    
+
     try {
       const res = await axios.post(`${URL}/api/auth/google`, {
         token: response.credential,
