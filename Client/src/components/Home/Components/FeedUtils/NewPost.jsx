@@ -10,11 +10,12 @@ import { IoClose } from "react-icons/io5";
 import axios from "axios";
 import { URL } from "../../../../../Link";
 
-const NewPost = (composeModal) => {
-  const { authUser ,setPostRender,postRender } = useMainDashContext();
+const NewPost = () => {
+  const { authUser, setPostRender, postRender } = useMainDashContext();
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const imagekit = new ImageKit({
     publicKey: "public_u7kxH7LgunPNp3hdLZv7edHsbBI=",
@@ -48,7 +49,6 @@ const NewPost = (composeModal) => {
       setLoading(false);
     }
   };
-
 
   const handlePost = async () => {
     setLoading(true);
@@ -88,7 +88,10 @@ const NewPost = (composeModal) => {
           placeholder="What's happening?"
           className="w-full h-14 text-2xl border-none active:outline-none outline-none focus:border-none bg-transparent text-white"
           value={content}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={(e) => {
+            setContent(e.target.value);
+            setIsTyping(e.target.value.trim().length > 0);
+          }}
         />
 
         <h1 className="text-[#1d9bf0] font-semibold">Everyone can reply</h1>
@@ -140,9 +143,11 @@ const NewPost = (composeModal) => {
             </div>
 
             <button
-              className="bg-[#1d9bf0] opacity-60 h-10 w-20 rounded-full text-lg items-center flex justify-center text-white font-semibold"
+              className={`bg-[#1d9bf0] h-10 w-20 rounded-full text-lg items-center flex justify-center text-white font-semibold ${
+                loading || !isTyping ? "opacity-60 cursor-not-allowed" : ""
+              }`}
               onClick={handlePost}
-              disabled={loading || !content}
+              disabled={loading || !isTyping}
             >
               {loading ? "Posting..." : "Post"}
             </button>

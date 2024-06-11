@@ -35,14 +35,11 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${URL}/api/auth/SendMail`,
-        {
-          username: CreateAccount.username,
-          email: CreateAccount.email,
-          // password: CreateAccount.password,
-        }
-      );
+      const response = await axios.post(`${URL}/api/auth/SendMail`, {
+        username: CreateAccount.username,
+        email: CreateAccount.email,
+        // password: CreateAccount.password,
+      });
       console.log(response.data);
       setCraModal2(true);
     } catch (error) {
@@ -54,14 +51,11 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
   const handleSubmit2 = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
-       `${URL}/api/auth/verifyCra`,
-        {
-          otp: otp,
-          CreateAccount,
-           maleProfile :`https://avatar.iran.liara.run/public/boy?username=${CreateAccount.username}`,
-        }
-      );
+      const response = await axios.post(`${URL}/api/auth/verifyCra`, {
+        otp: otp,
+        CreateAccount,
+        maleProfile: `https://avatar.iran.liara.run/public/boy?username=${CreateAccount.username}`,
+      });
       const { token, user } = response.data;
       if (response.data.success) {
         verifyToken(token);
@@ -101,10 +95,7 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${URL}api/auth/login`,
-        credentials
-      );
+      const response = await axios.post(`${URL}api/auth/login`, credentials);
       const { token, user } = response.data;
 
       if (response.data.success) {
@@ -286,65 +277,63 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
                 <h1 className=" text-3xl font-semibold">
                   Log into Your Account
                 </h1>
-                <div  className="flex flex-col items-center gap-2">
+                <div className="flex flex-col items-center gap-2">
+                  <GoogleOAuthProvider clientId="199764480225-1npvvugr55pmnehika7e2dnkmpv42c01.apps.googleusercontent.com">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onFailure={handleGoogleFailure}
+                      cookiePolicy="single_host_origin"
+                      containerProps={{
+                        className:
+                          "flex items-center justify-center gap-2 w-[21rem] bg-white text-black rounded-full border border-gray-300 shadow-sm hover:bg-gray-100 transition duration-300",
+                      }}
+                      render={(renderProps) => (
+                        <button
+                          type="button"
+                          style={{
+                            border: "none !important",
+                          }}
+                          className="flex items-center justify-center gap-2 w-[20rem] h-12 bg-white text-black rounded-full border border-gray-300 shadow-sm hover:bg-gray-100 transition duration-300"
+                          onClick={renderProps.onClick}
+                          disabled={renderProps.disabled}
+                        >
+                          <FcGoogle className="text-2xl" />
+                          Sign in with Google
+                        </button>
+                      )}
+                    />
+                  </GoogleOAuthProvider>
 
-                <GoogleOAuthProvider clientId="199764480225-1npvvugr55pmnehika7e2dnkmpv42c01.apps.googleusercontent.com">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onFailure={handleGoogleFailure}
-                    cookiePolicy="single_host_origin"
-                    containerProps={{
-                      className:
-                        "flex items-center justify-center gap-2 w-[21rem] bg-white text-black rounded-full border border-gray-300 shadow-sm hover:bg-gray-100 transition duration-300",
-                    }}
-                    render={(renderProps) => (
-                      <button
-                        type="button"
-                        style={{
-                          border: "none !important",
-                        }}
-                        className="flex items-center justify-center gap-2 w-[20rem] h-12 bg-white text-black rounded-full border border-gray-300 shadow-sm hover:bg-gray-100 transition duration-300"
-                        onClick={renderProps.onClick}
-                        disabled={renderProps.disabled}
-                      >
-                        <FcGoogle className="text-2xl" />
-                        Sign in with Google
-                      </button>
-                    )}
-                  />
-                </GoogleOAuthProvider>
+                  <h1 className="  text-xl">or</h1>
 
-                <h1 className="  text-xl">or</h1>
-                
-                <div>
-                  <input
-                    type="text"
-                    name="EorU"
-                    autoComplete="off"
-                    placeholder="UserName or Email"
-                    className=" w-full h-10 rounded-lg  border py-6 px-4 border-[#2f3336] bg-transparent  focus:outline-none text-white  "
-                    onChange={handleInputChange}
-                    value={credentials.EorU}
-                  />
-                  <input
-                    type="password"
-                    name="password"
-                    autoComplete="off"
-                    placeholder="Enter your password"
-                    className=" w-full h-10 rounded-lg  border py-6 px-4 border-[#2f3336] bg-transparent  focus:outline-none text-white  mt-4"
-                    onChange={handleInputChange}
-                    value={credentials.password}
-                  />
+                  <div>
+                    <input
+                      type="text"
+                      name="EorU"
+                      autoComplete="off"
+                      placeholder="UserName or Email"
+                      className=" w-full h-10 rounded-lg  border py-6 px-4 border-[#2f3336] bg-transparent  focus:outline-none text-white  "
+                      onChange={handleInputChange}
+                      value={credentials.EorU}
+                    />
+                    <input
+                      type="password"
+                      name="password"
+                      autoComplete="off"
+                      placeholder="Enter your password"
+                      className=" w-full h-10 rounded-lg  border py-6 px-4 border-[#2f3336] bg-transparent  focus:outline-none text-white  mt-4"
+                      onChange={handleInputChange}
+                      value={credentials.password}
+                    />
+                  </div>
+                  <button
+                    className=" w-full h-12 rounded-full  bg-white/50 text-black text-lg font-bold mt-4"
+                    onClick={handleLogin}
+                    disabled={loading}
+                  >
+                    {loading ? "Logging..." : "Login"}
+                  </button>
                 </div>
-                <button
-                  className=" w-full h-12 rounded-full  bg-white/50 text-black text-lg font-bold mt-4"
-                  onClick={handleLogin}
-                  disabled={loading}
-                >
-                  {loading ? "Logging..." : "Login"}
-                </button>
-                </div>
-
               </div>
             </div>
           </div>

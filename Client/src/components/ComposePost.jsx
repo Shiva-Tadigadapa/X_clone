@@ -10,7 +10,7 @@ import { IoClose } from "react-icons/io5";
 import axios from "axios";
 import { useRef } from "react";
 import { useEffect } from "react";
-import { URL } from '../../Link';
+import { URL } from "../../Link";
 
 const ComposePost = ({ composeModal, post }) => {
   const { authUser } = useMainDashContext();

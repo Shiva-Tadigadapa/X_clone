@@ -21,9 +21,10 @@ import { useLocation } from "react-router-dom";
 import { URL } from "../../../Link";
 // import { useMainDashContext } from "../../Context/AppContext";
 
-const PostPage = ({setSideSec2}) => {
+const PostPage = ({ setSideSec2 }) => {
   const { handle, postId } = useParams();
-  const { HiddenDatah, setHiddenDatah ,setSideSec,SideSec} = useMainDashContext();
+  const { HiddenDatah, setHiddenDatah, setSideSec, SideSec } =
+    useMainDashContext();
   setSideSec(setSideSec2);
   console.log("handle:", handle, "postId:", postId);
   const { authUser } = useMainDashContext();
@@ -86,10 +87,7 @@ const PostPage = ({setSideSec2}) => {
 
       console.log("Post Data:", postData);
 
-      await axios.post(
-        `${URL}/post/comment/${postId}/${handle}`,
-        postData
-      );
+      await axios.post(`${URL}/post/comment/${postId}/${handle}`, postData);
 
       setContent("");
       setImages([]);
@@ -105,9 +103,7 @@ const PostPage = ({setSideSec2}) => {
     console.log(handle, postId);
     const fetchPost = async () => {
       try {
-        const response = await axios.get(
-          `${URL}/post/${postId}/${handle}`
-        );
+        const response = await axios.get(`${URL}/post/${postId}/${handle}`);
         console.log(response.data);
         setIsNested(response.data.isNested);
         setPost(response.data.post);
@@ -250,14 +246,11 @@ const PostPage = ({setSideSec2}) => {
   useEffect(() => {
     const sendNestedCommentsToBackend = async () => {
       try {
-        const response = await axios.get(
-          `${URL}/post/nestedComment`,
-          {
-            params: {
-              nestedComments: JSON.stringify(nestedComments), // Convert nestedComments array to JSON string
-            },
-          }
-        );
+        const response = await axios.get(`${URL}/post/nestedComment`, {
+          params: {
+            nestedComments: JSON.stringify(nestedComments), // Convert nestedComments array to JSON string
+          },
+        });
         setPageNestedComments(response.data.nestedComments);
         console.log("Response from backend:", response.data.nestedComments);
       } catch (error) {
@@ -272,7 +265,9 @@ const PostPage = ({setSideSec2}) => {
     <>
       <div
         className={`flex flex-col border-b  ${
-       (  (post && post.mediaUrl && post.mediaUrl.length===0) ) ? "w-[700px]": "w-full"
+          post && post.mediaUrl && post.mediaUrl.length === 0
+            ? "w-[700px]"
+            : "w-full"
         }   h-full  border-[#2f3336] items-start gap-3 px-6`}
       >
         <div className="px-4 py-4 w-full justify-start sticky top-0 bg-black/70 backdrop-blur-md items-center gap-8 flex">

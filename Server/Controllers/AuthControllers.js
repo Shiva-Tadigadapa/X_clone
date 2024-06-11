@@ -22,14 +22,21 @@ export const googleAuth = async (req, res) => {
         const payload = ticket.getPayload();
         const { name, email, picture } = payload;
 
+        // Generate handle from the username
+        const handle = name.replace(/\s+/g, '').toLowerCase(); // Remove spaces and convert to lowercase
+
+        // Set a default profile picture URL if the user doesn't have a picture
+        const profilePicture = picture || `https://avatar.iran.liara.run/public/boy?username=${handle}`;
+
         // Check if the user already exists in the database
         let user = await UserModel.findOne({ email });
         if (!user) {
             // If the user does not exist, create a new user in the database
             user = new UserModel({
                 username: name,
+                handle, // Assign the generated handle
                 email,
-                profilePicture: picture,
+                profilePicture, // Assign the profile picture URL
             });
             user = await user.save();
         }
@@ -37,8 +44,15 @@ export const googleAuth = async (req, res) => {
         // Create a JWT token for the authenticated user
         const userId = user._id;
         const jwtToken = jwt.sign({ userId, email }, process.env.JWT_SECRET, {
-            expiresIn: '24h',
+            expiresIn: '1h',  // Short-lived access token
         });
+
+        // Save the refresh token
+        const refreshToken = jwt.sign({ userId, email }, process.env.JWT_SECRET, {
+            expiresIn: '7d',  // Long-lived refresh token
+        });
+        user.refreshToken = refreshToken;
+        await user.save();
 
         // Send response back to the client
         res.status(200).json({
@@ -49,8 +63,10 @@ export const googleAuth = async (req, res) => {
                 name: user.username,
                 email: user.email,
                 picture: user.profilePicture,
-                token: jwtToken,
+                handle: user.handle,
             },
+            token: jwtToken,
+            refreshToken: refreshToken
         });
     } catch (error) {
         console.error('Error verifying token:', error);
@@ -58,6 +74,34 @@ export const googleAuth = async (req, res) => {
     }
 };
 
+
+// Refresh Token Endpoint
+export const refreshToken = async (req, res) => {
+    const { refreshToken } = req.body;
+
+    try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+        const { userId, email } = decoded;
+
+        const user = await UserModel.findOne({ _id: userId, email });
+        if (!user || user.refreshToken !== refreshToken) {
+            throw new Error('Invalid refresh token');
+        }
+
+        // Generate new access token
+        const newJwtToken = jwt.sign({ userId, email }, process.env.JWT_SECRET, {
+            expiresIn: '1h',
+        });
+
+        res.status(200).json({
+            success: true,
+            token: newJwtToken,
+        });
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        res.status(400).json({ error: 'Invalid refresh token' });
+    }
+};
 
 
 // export { jwt };
@@ -156,7 +200,7 @@ export const sendOtp = async (req, res) => {
 
 
 export const verifyOtp = async (req, res) => {
-    const { CreateAccount, otp ,maleProfile} = req.body;
+    const { CreateAccount, otp, maleProfile } = req.body;
     const { email, password, username } = CreateAccount;
     const profilePicture = maleProfile;
     console.log(profilePicture)
@@ -182,7 +226,7 @@ export const verifyOtp = async (req, res) => {
             const hashedPassword = await bcrypt.hash(password, 10);
             const handle = username.toLowerCase().replace(/ /g, '');
             // Create a new user with hashed password
-            const newUser = new UserModel({ email, password: hashedPassword, username, profilePicture,handle});
+            const newUser = new UserModel({ email, password: hashedPassword, username, profilePicture, handle });
             await newUser.save();
 
             // Retrieve the user
@@ -238,7 +282,7 @@ export const verifyToken = async (req, res) => {
         res.status(200).json({
             success: true,
             message: 'Token verification successful',
-            decoded: { ...decoded, name: user.username , picture: user.profilePicture, handle: user.handle},
+            decoded: { ...decoded, name: user.username, picture: user.profilePicture, handle: user.handle },
             username: user.username,
         });
     } catch (error) {
