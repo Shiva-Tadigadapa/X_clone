@@ -4,16 +4,16 @@ Welcome to the SpeakX Assignment repository. This project is a full-stack clone 
 
 ## Project Links
 
-- **Backend URL**: [SpeakX Backend](https://speakx-assignment-m1b0.onrender.com/)
-- **Frontend URL**: [SpeakX Frontend](https://speak-x-shiva-assignment.vercel.app/)
-- **Repository**: [SpeakX_Assignment](https://github.com/Shiva-Tadigadapa/SpeakX_Assignment/)
+- **Backend URL**: [SpeakX Backend](https://speakx-assignment-m1b0.onrender.com/){:target="_blank"}
+- **Frontend URL**: [SpeakX Frontend](https://speak-x-shiva-assignment.vercel.app/){:target="_blank"}
+- **Repository**: [SpeakX_Assignment](https://github.com/Shiva-Tadigadapa/SpeakX_Assignment/){:target="_blank"}
 
 ## Features
 
 ### User Authentication
 - **Google Authentication**: Users can log in using their Google account.
-- **Sign Up & Login**: Traditional email/password authentication.
-- **Password Recovery**: Users can reset their password using email verification.
+- **Email Verification**: Users can verify their email address upon registration.
+- **JWT Authentication**: Secure authentication using JSON Web Tokens for both Google Auth and Email/Password.
 
 ### User Profile
 - **Profile Management**: Users can view and update their profile details.
@@ -31,9 +31,6 @@ Welcome to the SpeakX Assignment repository. This project is a full-stack clone 
 - **Edit Comment**: Users can edit their comments.
 - **Delete Comment**: Users can delete their comments.
 - **Nested Comments**: Users can reply to comments, creating a nested comment thread.
-
-### Notifications
-- **Real-time Notifications**: Users receive real-time notifications for likes, comments, and replies.
 
 ### Follow System
 - **Follow/Unfollow**: Users can follow or unfollow other users.
