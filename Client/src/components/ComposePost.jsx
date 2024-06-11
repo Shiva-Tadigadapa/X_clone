@@ -95,7 +95,7 @@ const ComposePost = ({ composeModal, post }) => {
             style={{ height: `${(calHeight && calHeight) - 30}px` }}
           />
           <div className=" flex gap-4 items-start justify-center">
-            <img src={post?.author.profilePicture} className=" h-10 w-10" />
+            <img src={post?.author.profilePicture} className=" h-10 w-10 rounded-full" />
             <div className="flex  gap-1 flex-col">
               <div className=" flex  items-center  gap-1">
                 <h1 className="text-white text-xl font-semibold">
@@ -177,7 +177,7 @@ const ComposePost = ({ composeModal, post }) => {
                 </div>
 
                 <button
-                  className="bg-[#1d9bf0] opacity-60 h-10 w-20 rounded-full text-lg items-center flex justify-center text-white font-semibold"
+                  className="bg-[#1d9bf0]  h-10 w-20 rounded-full text-lg items-center flex justify-center text-white font-semibold"
                   onClick={handlePost}
                   disabled={loading || !content}
                 >

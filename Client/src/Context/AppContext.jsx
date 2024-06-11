@@ -61,7 +61,6 @@ export const MainDashProvider = ({ children }) => {
         setPostRender,
         SideSec,
         setSideSec,
-
       }}
     >
       {children}

@@ -5,6 +5,7 @@ import SignIn from "./components/Auth/SignIn";
 import { useMainDashContext } from "./Context/AppContext";
 import Home from "./components/Home/Home";
  import NewPost from "./components/Home/Components/FeedUtils/NewPost";
+import PostPage from "./components/PostDetails/PostPage";
 
 function App() {
   const { isDarkMode } = useMainDashContext();

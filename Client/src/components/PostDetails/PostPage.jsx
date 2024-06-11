@@ -19,6 +19,7 @@ import { PiImageSquare } from "react-icons/pi";
 import Comments from "./Comments";
 import { useLocation } from "react-router-dom";
 import { URL } from "../../../Link";
+import ComposePost from "../ComposePost";
 // import { useMainDashContext } from "../../Context/AppContext";
 
 const PostPage = ({ setSideSec2 }) => {
@@ -45,6 +46,7 @@ const PostPage = ({ setSideSec2 }) => {
     const storedData = localStorage.getItem("hiddenData");
     return storedData ? JSON.parse(storedData) : {};
   });
+  const [composeModal, setComposeModal] = useState(false);
   const imagekit = new ImageKit({
     publicKey: "public_u7kxH7LgunPNp3hdLZv7edHsbBI=",
     privateKey: "private_8CshqjFmGQTjPw/kXsyOixM5ctM=",
@@ -400,10 +402,16 @@ const PostPage = ({ setSideSec2 }) => {
 
         <div className="w-full px-4 h-[1px] bg-gray-600" />
         <div className="text-gray-500 flex justify-around text-xl -ml-4 w-full">
-          <button className="flex gap-2 items-center">
+          {/* <Link to="  "> */}
+          <button className="flex gap-2 items-center"
+            onClick={() => {
+              setComposeModal(!composeModal);
+            }}
+          >
             <FaRegComment />
             <p className="text-[16px]">656</p>
           </button>
+          {/* </Link> */}
           <button className="flex gap-2 items-center">
             <FaRetweet />
             <p className="text-[16px]">10</p>
@@ -481,7 +489,7 @@ const PostPage = ({ setSideSec2 }) => {
                 </div>
 
                 <button
-                  className="bg-[#1d9bf0] opacity-60 h-10 w-20 rounded-full text-lg items-center flex justify-center text-white font-semibold"
+                  className="bg-[#1d9bf0]  h-10 w-20 rounded-full text-lg items-center flex justify-center text-white font-semibold"
                   onClick={handlePost}
                   disabled={loading || !content}
                 >
@@ -499,6 +507,25 @@ const PostPage = ({ setSideSec2 }) => {
               .map((comment) => <Comments key={comment._id} post={comment} />)}
         </div>
       </div>
+
+      {composeModal && (
+        <div className="fixed top-0  z-[1] rounded-3xl left-0 w-full h-full bg-[#242d34] bg-opacity-60 flex-col flex items-center justify-start">
+          <div className=" relative    items-start justify-start w-[50%] py-5 mt-20   flex flex-col    bg-black rounded-2xl">
+            <div
+              onClick={() => {
+                setComposeModal(false);
+                setRerender(!rerender);
+              }}
+              className=" cursor-pointer"
+            >
+              <div className=" top-3 z-[1]  absolute left-3">
+                <IoClose className="text-white text-2xl" />
+              </div>
+            </div>
+            <ComposePost post={post} />
+          </div>
+        </div>
+      )}
     </>
   );
 };
