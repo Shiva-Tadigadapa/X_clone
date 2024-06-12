@@ -5,7 +5,7 @@ import FeedPost from "./FeedUtils/FeedPost";
 import axios from "axios";
 import { URL } from "../../../../Link";
 
-const Feed = ({ Section, posts,followingPosts }) => {
+const Feed = ({ Section, posts, followingPosts }) => {
   const { authUser, feedNav, setFeedNav } = useMainDashContext();
   return (
     <>
@@ -63,17 +63,17 @@ const Feed = ({ Section, posts,followingPosts }) => {
           <>
             <div className="w-full flex items-center py-2.5 justify-center hover:bg-[#181818] cursor-pointer">
               <h1 className="text-[#1d9bf0] text-lg">
-                Showing {followingPosts&&followingPosts.length} posts
+                Showing {followingPosts && followingPosts.length} posts
               </h1>
             </div>
             <div className="bg-[#2f3336] h-[1px] w-full" />
-            {followingPosts&&followingPosts.map((post) => (
-              <FeedPost key={post._id} post={post} />
-            ))}
+            {followingPosts &&
+              followingPosts.map((post) => (
+                <FeedPost key={post._id} post={post} />
+              ))}
             <div className="bg-[#2f3336] h-[1px] w-full" />
           </>
-        )  
-        }
+        )}
       </div>
     </>
   );

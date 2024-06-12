@@ -259,7 +259,9 @@ const PostPage = ({ setSideSec2 }) => {
             }}
           >
             <FaRegComment />
-            <p className="text-[16px]">656</p>
+            <p className="text-[16px]"> 
+              {post && post.timeline&&post.timeline.length}
+            </p>
           </button>
           <button className="flex gap-2 items-center  "
            style={{ color: retweet ? "#005d96" : "inherit" }}

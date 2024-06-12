@@ -1,5 +1,5 @@
 export const renderImages = (isNested = false, post = {}, firstHiddenData = null) => {
-  console.log("renderimgs", firstHiddenData);
+  // console.log("renderimgs", firstHiddenData);
 
   let mediaUrl;
   if (isNested) {
