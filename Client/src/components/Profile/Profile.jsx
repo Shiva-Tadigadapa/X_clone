@@ -34,6 +34,7 @@ const Profile = () => {
           setUserProfile(response.data.userProfile);
           setPosts(response.data.userProfile.posts);
           setIsFollowing(response.data.userProfile.followers.includes(authUser.userId));
+          console.log("response.data.userProfile:", response.data.userProfile);
         }
 
         setLoading(false);
@@ -44,7 +45,7 @@ const Profile = () => {
     };
 
     fetchUserData();
-  }, [username, authUser.userId]);
+  }, [username, authUser.userId,isFollowing]);
 
   const setHandle = (username) => {
     return username.split(" ").join("").toLowerCase();
@@ -112,7 +113,7 @@ const Profile = () => {
             <h1 className="text-xl font-bold">
               {userProfile && userProfile.username}
             </h1>
-            <h2 className="text-xs">42.7K posts</h2>
+            <h2 className="text-xs">{userProfile&&userProfile.posts.length} posts</h2>
           </div>
         </div>
         <div>
@@ -152,15 +153,15 @@ const Profile = () => {
               @{setHandle(userProfile && userProfile.username)}
             </h2>
           </div>
-          <h2 className="font-semibold">Prime Minister of India</h2>
+          <h2 className="font-semibold">Hey there I am using Twitter✌️</h2>
           <div className="flex justify-between px-2">
             <div className="text-gray-500 flex items-center gap-1">
               <GrLocation className="text-lg" />
               <h1 className="font-semibold">India</h1>
             </div>
-            <div className="text-gray-500 flex items-center gap-1">
+            <div className="text-blue-300 flex items-center gap-1">
               <RiLink className="text-lg" />
-              <h1 className="font-semibold">narendramodi.com</h1>
+              <h1 className="font-semibold">{userProfile.handle}.com</h1>
             </div>
             <div className="text-gray-500 flex items-center gap-1">
               <PiBalloon className="text-lg" />
@@ -173,11 +174,11 @@ const Profile = () => {
           </div>
           <div className="flex gap-5 px-2">
             <h1 className="font-semibold text-md text-gray-500">
-              <span className="text-white mr-1">2,674</span>
+              <span className="text-white mr-1">{userProfile&&userProfile.following.length}</span>
               Following
             </h1>
             <h1 className="font-semibold text-md text-gray-500">
-              <span className="text-white mr-1">98.6M</span>
+              <span className="text-white mr-1">{userProfile&&userProfile.followers.length}</span>
               Followers
             </h1>
           </div>

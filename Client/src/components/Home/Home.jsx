@@ -14,7 +14,8 @@ import { URL } from "../../../Link";
 
 const Home = ({ Section }) => {
   const [posts, setPosts] = useState([]);
-  const { postRender } = useMainDashContext();
+  const [followingPosts, setFollowingPosts] = useState([]);
+  const { postRender, authUser, feedNav } = useMainDashContext();
   const location = useLocation();
   const hiddenData = location && location.state && location.state.hiddenData;
   console.log(hiddenData, "hiddenData");
@@ -23,9 +24,8 @@ const Home = ({ Section }) => {
     localStorage.removeItem("nestedComments");
     const fetchPosts = async () => {
       try {
-        const response = await axios.get(
-         ` ${URL}/post/getallposts`
-        );
+        const response = await axios.get(` ${URL}/post/getallposts`);
+        console.log(response.data, "posts");
         setPosts(response.data.posts);
       } catch (error) {
         console.error("Error fetching posts:", error);
@@ -33,8 +33,20 @@ const Home = ({ Section }) => {
     };
 
     fetchPosts();
-    // Remove the nestedcomments from local storage
-  }, [postRender]);
+    const getFollowingPosts = async () => {
+      try {
+        const res = await axios.get(
+          `${URL}/post/getfollowPost/${authUser.userId}/followingPosts`
+        );
+        console.log(res.data);
+        setFollowingPosts(res.data.followingPosts);
+        console.log(followingPosts, "followingPosts");
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getFollowingPosts();
+  }, [postRender, feedNav]);
 
   useEffect(() => {
     if (Section === "newPost") {
@@ -42,8 +54,6 @@ const Home = ({ Section }) => {
     } else {
       document.body.classList.remove("no-scroll");
     }
-
-    // Cleanup function to remove the class when the component unmounts
     return () => {
       document.body.classList.remove("no-scroll");
     };
@@ -62,9 +72,13 @@ const Home = ({ Section }) => {
         {Section && Section === "profile" ? (
           <Profile posts={posts} />
         ) : Section && Section === "Post" ? (
-          <PostPage hiddenData={hiddenData} setSideSec2={1}/>
+          <PostPage hiddenData={hiddenData} setSideSec2={1} />
         ) : (
-          <Feed Section={Section} posts={posts} />
+          <Feed
+            Section={Section}
+            posts={posts}
+            followingPosts={followingPosts}
+          />
         )}
         <Happening />
       </div>

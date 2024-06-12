@@ -359,3 +359,22 @@ export const getRandomUsers = async (req, res) => {
         res.status(500).json({ message: "Failed to fetch random users" });
     }
 };
+
+
+export const getSearchResults = async (req, res) => {
+    const { search } = req.params;
+
+    try {
+        const users = await UserModel.find({
+            $or: [
+                { username: { $regex: new RegExp(search, "i") } },
+                { handle: { $regex: new RegExp(search, "i") } },
+            ],
+        });
+
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Failed to fetch search results" });
+    }
+};

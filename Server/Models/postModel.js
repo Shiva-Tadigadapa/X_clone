@@ -55,6 +55,14 @@ const postSchema = new Schema({
         ref: 'User', // Assuming your user model is named 'User'
     }],
     timeline: [{ type: Schema.Types.ObjectId, ref: 'Comment' }], // Timeline for top-level comments
+    retweets: {
+        type: Number,
+        default: 0,
+    },
+    views: {
+        type: Number,
+        default: 0,
+    },
     hasComments: {
         type: Boolean,
         default: false

@@ -8,11 +8,56 @@ import { FiShare } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
 import ComposePost from "../../../ComposePost";
+import heartpng from "../../../../assets/heart.png";
+import { URL } from "../../../../../Link";
+import axios from "axios";
+import { useMainDashContext } from "../../../../Context/AppContext";
+import verifipng from "../../../../assets/verifi.png";
 
 const FeedPost = ({ post, userProfile }) => {
-  const commentCount = post.comments ? post.comments.length : 0;
-  const likeCount = post.likes ? post.likes.length : 0;
+  // console.log(post,"djsjhdjshj");
+  const { authUser, postRender, setPostRender } = useMainDashContext();
+  const commentCount = post.timeline ? post.timeline.length : 0;
+  console.log(post.timeline.length);
+  const [likeCount, setLikeCount] = useState(
+    post.likes ? post.likes.length : 0
+  );
   const [composeModal, setComposeModal] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
+  const [retweet, setRetweet] = useState(false);
+
+  useEffect(() => {
+    // Check localStorage for like status
+    const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || {};
+    setIsLiked(likedPosts[post._id] || false);
+  }, [post._id]);
+
+  const handleLike = () => {
+    // Update like count immediately
+    setLikeCount(isLiked ? likeCount - 1 : likeCount + 1);
+    setIsLiked(!isLiked);
+
+    // Update localStorage accordingly
+    const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || {};
+    if (isLiked) {
+      delete likedPosts[post._id];
+    } else {
+      likedPosts[post._id] = true;
+    }
+    localStorage.setItem("likedPosts", JSON.stringify(likedPosts));
+
+    // Make POST request to update server asynchronously
+    const postLikes = async () => {
+      try {
+        await axios.post(`${URL}/post/${post._id}/like`, {
+          userId: authUser.userId,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    postLikes();
+  };
 
   const openComposeModal = () => {
     setComposeModal(true);
@@ -24,7 +69,6 @@ const FeedPost = ({ post, userProfile }) => {
     } else {
       document.body.classList.remove("no-scroll");
     }
-    // Cleanup the effect
     return () => {
       document.body.classList.remove("no-scroll");
     };
@@ -102,10 +146,41 @@ const FeedPost = ({ post, userProfile }) => {
     return username.split(" ").join("").toLowerCase();
   };
 
+  const RetweetPost = async (postId) => {
+    try {
+      await axios.post(`${URL}/post/${postId}/retweet`, {
+        userId: authUser.userId,
+      });
+      setPostRender(!postRender);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const renderhrsAgo = (date) => {
+    const currentDate = new Date();
+    const postDate = new Date(date);
+    const diff = currentDate - postDate;
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) {
+      return `${days}d`;
+    } else if (hours > 0) {
+      return `${hours}h`;
+    } else if (minutes > 0) {
+      return `${minutes}m`;
+    } else {
+      return `${seconds}s`;
+    }
+  };
+
   return (
     <>
-      <div className="flex flex-col  hover:bg-[#181818] border-b w-full border-[#2f3336] items-start py-5 gap-3 px-6">
-        <div className="flex items-start justify-center gap-3">
+      <div className="flex flex-col hover:bg-[#181818] border-b w-full border-[#2f3336] items-start py-5 gap-3 px-6">
+        <div className="flex items-start justify-center gap-3 w-full">
           <img
             src={
               (post.author && post.author.profilePicture) ||
@@ -115,31 +190,41 @@ const FeedPost = ({ post, userProfile }) => {
             className="h-10 w-10 mt-2 rounded-full"
             alt="profile"
           />
-          <div className="flex flex-col items-start justify-center">
-            <div className="items-center flex gap-2">
-              <Link
-                to={`/profile/${
-                  (post.author && post.author.handle) ||
-                  (userProfile && userProfile.handle)
-                }`}
-              >
-                <h1 className="text-lg font-semibold">
-                  {(post.author && post.author.username) ||
-                    (userProfile && userProfile.username)}
-                </h1>
-              </Link>
-              <Link
-                to={`/profile/${
-                  (post.author && post.author.handle) ||
-                  (userProfile && userProfile.handle)
-                }`}
-              >
+          <div className="flex flex-col items-start w-full  justify-center">
+            <div className="items-center  justify-between w-full flex gap-2">
+              <div className=" flex items-start  gap-2 ">
+                <div>
+                  <Link
+                    to={`/profile/${
+                      (post.author && post.author.handle) ||
+                      (userProfile && userProfile.handle)
+                    }`}
+                  >
+                    <h1 className="text-lg font-semibold hover:underline">
+                      {(post.author && post.author.username) ||
+                        (userProfile && userProfile.username)}
+                    </h1>
+                  </Link>
+                  <Link
+                    to={`/profile/${
+                      (post.author && post.author.handle) ||
+                      (userProfile && userProfile.handle)
+                    }`}
+                  >
+                    <p className="text-gray-500 hover:underline">
+                      @
+                      {(post.author && post.author.handle) ||
+                        (userProfile && userProfile.handle)}
+                    </p>
+                  </Link>
+                </div>
+                <img src={verifipng} className=" w-5 h-5 mt-1.5" alt="" />
+              </div>
+              <div className=" ">
                 <p className="text-gray-500">
-                  @
-                  {(post.author && post.author.handle) ||
-                    (userProfile && userProfile.handle)}
+                  {post.createdAt && renderhrsAgo(post.createdAt)} ago
                 </p>
-              </Link>
+              </div>
             </div>
             <Link
               to={`/${
@@ -148,7 +233,7 @@ const FeedPost = ({ post, userProfile }) => {
               }/post/${post._id}`}
             >
               <div>
-                <p className=" text-lg mt-1">{post?.content}</p>
+                <p className="text-lg mt-1">{post?.content}</p>
                 {renderImages()}
               </div>
             </Link>
@@ -166,17 +251,35 @@ const FeedPost = ({ post, userProfile }) => {
               <p>{commentCount}</p>
             </button>
           </Link>
-          <button className="flex gap-2 items-center">
+
+          <button
+            className="flex gap-2 items-center"
+            style={{ color: retweet ? "#005d96" : "inherit" }}
+            onClick={() => {
+              RetweetPost(post._id);
+              setRetweet(true);
+            }}
+          >
             <FaRetweet />
-            <p>10</p>
+            <p>{post && post.retweets}</p>
           </button>
-          <button className="flex gap-2 items-center">
-            <FiHeart />
-            <p>{likeCount}</p>
+          <button className="flex gap-2 items-center" onClick={handleLike}>
+            {isLiked ? (
+              <>
+                <img src={heartpng} className="h-5 w-5" />
+
+                <p>{likeCount}</p>
+              </>
+            ) : (
+              <>
+                <FiHeart style={{ color: isLiked ? "red" : "inherit" }} />
+                <p>{likeCount}</p>
+              </>
+            )}
           </button>
           <button className="flex gap-2 items-center">
             <IoStatsChartSharp />
-            <p>10</p>
+            <p>{post && post.views}</p>
           </button>
           <div className="flex gap-4 justify-between">
             <button className="flex gap-2 items-center">
@@ -190,15 +293,15 @@ const FeedPost = ({ post, userProfile }) => {
       </div>
 
       {composeModal && (
-        <div className="fixed top-0  z-[1] rounded-3xl left-0 w-full h-full bg-[#242d34] bg-opacity-60 flex-col flex items-center justify-start">
-          <div className=" relative    items-start justify-start w-[50%] py-5 mt-20   flex flex-col    bg-black rounded-2xl">
+        <div className="fixed top-0 z-[1] rounded-3xl left-0 w-full h-full bg-[#242d34] bg-opacity-60 flex-col flex items-center justify-start">
+          <div className="relative items-start justify-start w-[50%] py-5 mt-20 flex flex-col bg-black rounded-2xl">
             <Link
               to="/home"
               onClick={() => {
                 setComposeModal(false);
               }}
             >
-              <div className=" top-3 z-[1]  absolute left-3">
+              <div className="top-3 z-[1] absolute left-3">
                 <IoClose className="text-white text-2xl" />
               </div>
             </Link>

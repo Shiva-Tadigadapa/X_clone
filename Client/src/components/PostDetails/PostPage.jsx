@@ -1,58 +1,65 @@
-import React, { useRef } from "react";
-import { FaRegComment, FaRetweet, FaArrowLeft } from "react-icons/fa";
+import React, { useRef, useState, useEffect } from "react";
+import { FaRegComment, FaRetweet } from "react-icons/fa";
 import { FiHeart, FiShare } from "react-icons/fi";
-import {
-  IoStatsChartSharp,
-  IoBookmarksOutline,
-  IoClose,
-} from "react-icons/io5";
+import { IoStatsChartSharp, IoClose } from "react-icons/io5";
 import { Link, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
 import axios from "axios";
 import { useMainDashContext } from "../../Context/AppContext";
 import ImageKit from "imagekit";
 import { BsEmojiSmile } from "react-icons/bs";
-import { RiCalendarScheduleLine } from "react-icons/ri";
-import { CgOptions } from "react-icons/cg";
 import { MdOutlineGifBox } from "react-icons/md";
-import { PiImageSquare } from "react-icons/pi";
 import Comments from "./Comments";
-import { useLocation } from "react-router-dom";
 import { URL } from "../../../Link";
 import ComposePost from "../ComposePost";
-// import { useMainDashContext } from "../../Context/AppContext";
+import NestedPage from "./PostUtils/NestedPage";
+import { renderImages } from "../renderImages";
+import PageHeader from "./PostUtils/PageHeader";
+import MainPostPage from "./PostUtils/MainPostPage";
+import { IoClose as IoCloseOutline } from "react-icons/io5";
+import { PiImageSquare } from "react-icons/pi";
+import heartPng from "../../assets/heart.png";
 
 const PostPage = ({ setSideSec2 }) => {
   const { handle, postId } = useParams();
-  const { HiddenDatah, setHiddenDatah, setSideSec, SideSec } =
-    useMainDashContext();
-  setSideSec(setSideSec2);
-  console.log("handle:", handle, "postId:", postId);
-  const { authUser } = useMainDashContext();
-  const { nestedComments, setNestedComments } = useMainDashContext();
+  const {
+    HiddenDatah,
+    setHiddenDatah,
+    setSideSec,
+    SideSec,
+    authUser,
+    nestedComments,
+    setNestedComments,
+  } = useMainDashContext();
   const [post, setPost] = useState({});
   const [content, setContent] = useState("");
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isNested, setIsNested] = useState(false);
   const [rerender, setRerender] = useState(false);
-  const LocalnestedComments = JSON.parse(
-    localStorage.getItem("nestedComments")
-  );
-  console.log("LocalnestedComments:", LocalnestedComments);
   const [pageNestedComments, setPageNestedComments] = useState({});
   const [hiddenData, setHiddenData] = useState(() => {
-    // Initialize state from localStorage if available
     const storedData = localStorage.getItem("hiddenData");
     return storedData ? JSON.parse(storedData) : {};
   });
   const [composeModal, setComposeModal] = useState(false);
+  const [likeCount, setLikeCount] = useState(
+    post.likes ? post.likes.length : "0"
+  );
+  const [retweet, setRetweet] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
   const imagekit = new ImageKit({
     publicKey: "public_u7kxH7LgunPNp3hdLZv7edHsbBI=",
     privateKey: "private_8CshqjFmGQTjPw/kXsyOixM5ctM=",
     urlEndpoint: "https://ik.imagekit.io/7da6fpjdo/coverImg",
     authenticationEndpoint: "http://localhost:3000/imagekit-auth",
   });
+
+  setSideSec(setSideSec2);
+
+  useEffect(() => {
+    const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || {};
+    setIsLiked(likedPosts[postId] || false);
+  }, [postId]);
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -65,8 +72,6 @@ const PostPage = ({ setSideSec2 }) => {
         file,
         fileName: file.name,
       });
-
-      console.log("Upload Response:", uploadResponse);
 
       const imageUrl = uploadResponse.url;
       setImages((prevImages) => [...prevImages, { url: imageUrl }]);
@@ -87,8 +92,6 @@ const PostPage = ({ setSideSec2 }) => {
         parentCommentId: postId,
       };
 
-      console.log("Post Data:", postData);
-
       await axios.post(`${URL}/post/comment/${postId}/${handle}`, postData);
 
       setContent("");
@@ -102,13 +105,12 @@ const PostPage = ({ setSideSec2 }) => {
   };
 
   useEffect(() => {
-    console.log(handle, postId);
     const fetchPost = async () => {
       try {
         const response = await axios.get(`${URL}/post/${postId}/${handle}`);
-        console.log(response.data);
         setIsNested(response.data.isNested);
         setPost(response.data.post);
+
         setHiddenData((prevHiddenData) => {
           const updatedHiddenData = {
             ...prevHiddenData,
@@ -118,18 +120,13 @@ const PostPage = ({ setSideSec2 }) => {
           return updatedHiddenData;
         });
         setNestedComments((prevNestedComments) => {
-          // Create a set to store unique IDs
           const uniqueIds = new Set(prevNestedComments);
 
-          // Check if the response post ID already exists in the set
           if (!uniqueIds.has(response.data.post._id)) {
-            // If it doesn't exist, add the new post ID to the array
             const updatedNestedComments = [
               ...prevNestedComments,
               response.data.post._id,
             ];
-
-            // Store the updated nestedComments array in local storage
             localStorage.setItem(
               "nestedComments",
               JSON.stringify(updatedNestedComments)
@@ -137,21 +134,31 @@ const PostPage = ({ setSideSec2 }) => {
 
             return updatedNestedComments;
           } else {
-            // If it already exists, return the previous state without adding the duplicate post ID
             return prevNestedComments;
           }
         });
-
-        console.log("nestedComments:", nestedComments);
+        setLikeCount(response.data.post.likes.length);
+        const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || {};
+        setIsLiked(likedPosts[postId] || false);
       } catch (error) {
         console.error("Error fetching post:", error);
       }
     };
     fetchPost();
+    // useEffect(() => {
+      const viewIncreament = async () => {
+        try {
+          await axios.post(`${URL}/post/${postId}/view`);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      viewIncreament();
+      // } , []);
   }, [handle, postId, rerender]);
+
   const getFirstHiddenData = () => {
     if (!hiddenData || typeof hiddenData !== "object") return null;
-
     const keys = Object.keys(hiddenData);
     if (keys.length > 0) {
       const firstKey = keys[0];
@@ -161,81 +168,6 @@ const PostPage = ({ setSideSec2 }) => {
   };
 
   const firstHiddenData = getFirstHiddenData();
-  console.log("First Hidden Data:", firstHiddenData);
-  const renderImages = () => {
-    let mediaUrl;
-    if (isNested) {
-      mediaUrl = post.parentPostId
-        ? post.parentPostId.mediaUrl
-        : (firstHiddenData && firstHiddenData.mediaUrl) || [];
-    } else {
-      mediaUrl = post ? post.mediaUrl : [];
-    }
-
-    if (!mediaUrl || mediaUrl.length === 0) return null;
-
-    if (mediaUrl.length === 1) {
-      return (
-        <div className="w-full">
-          <img
-            src={mediaUrl[0]}
-            className="rounded-3xl w-full mt-4"
-            alt="media"
-          />
-        </div>
-      );
-    } else if (mediaUrl.length === 2) {
-      return (
-        <div className="flex gap-2 w-full mt-4">
-          {mediaUrl.map((url, index) => (
-            <img
-              key={index}
-              src={url}
-              className="rounded-3xl w-1/2 object-cover"
-              alt="media"
-            />
-          ))}
-        </div>
-      );
-    } else if (mediaUrl.length === 3) {
-      return (
-        <div className="flex gap-2 w-full mt-4">
-          <div className="w-1/2">
-            <img
-              src={mediaUrl[0]}
-              className="rounded-3xl h-full object-cover"
-              alt="media"
-            />
-          </div>
-          <div className="w-1/2 flex flex-col gap-2">
-            <img
-              src={mediaUrl[1]}
-              className="rounded-3xl w-full object-cover"
-              alt="media"
-            />
-            <img
-              src={mediaUrl[2]}
-              className="rounded-3xl w-full object-cover"
-              alt="media"
-            />
-          </div>
-        </div>
-      );
-    } else if (mediaUrl.length === 4) {
-      return (
-        <div className="grid grid-cols-2 gap-2 w-full mt-4">
-          {mediaUrl.map((url, index) => (
-            <img
-              key={index}
-              src={url}
-              className="rounded-3xl w-full object-cover"
-              alt="media"
-            />
-          ))}
-        </div>
-      );
-    }
-  };
 
   const [calHeight, setCalHeight] = useState(0);
   const calHeightRef = useRef(null);
@@ -250,11 +182,10 @@ const PostPage = ({ setSideSec2 }) => {
       try {
         const response = await axios.get(`${URL}/post/nestedComment`, {
           params: {
-            nestedComments: JSON.stringify(nestedComments), // Convert nestedComments array to JSON string
+            nestedComments: JSON.stringify(nestedComments),
           },
         });
         setPageNestedComments(response.data.nestedComments);
-        console.log("Response from backend:", response.data.nestedComments);
       } catch (error) {
         console.error("Error sending nested comments to backend:", error);
       }
@@ -263,139 +194,66 @@ const PostPage = ({ setSideSec2 }) => {
     sendNestedCommentsToBackend();
   }, [nestedComments]);
 
+  const handleLike = async () => {
+    try {
+      const likedPosts = JSON.parse(localStorage.getItem("likedPosts")) || {};
+      if (isLiked) {
+        setLikeCount(likeCount - 1);
+        delete likedPosts[postId];
+      } else {
+        setLikeCount(likeCount + 1);
+        likedPosts[postId] = true;
+      }
+      localStorage.setItem("likedPosts", JSON.stringify(likedPosts));
+      setIsLiked(!isLiked);
+      await axios.post(`${URL}/post/${postId}/like`, {
+        userId: authUser.userId,
+      });
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
+  };
+
   return (
     <>
       <div
-        className={`flex flex-col border-b  ${
-          post && post.mediaUrl && post.mediaUrl.length === 0
-            ? "w-[700px]"
+        className={`flex flex-col border-b ${
+          post &&
+          post.mediaUrl &&
+          post.mediaUrl.length &&
+          hiddenData.mediaUrl &&
+          hiddenData.mediaUrl === 0
+            ? "w-full"
             : "w-full"
-        }   h-full  border-[#2f3336] items-start gap-3 px-6`}
+        } h-full w-full border-[#2f3336] items-start gap-3 px-6`}
       >
-        <div className="px-4 py-4 w-full justify-start sticky top-0 bg-black/70 backdrop-blur-md items-center gap-8 flex">
-          <Link
-            to="/home"
-            //remove nested from the local storage
-            onClick={() => {
-              localStorage.removeItem("nestedComments");
-              localStorage.removeItem("hiddenData");
-            }}
-          >
-            <FaArrowLeft className="text-xl" />
-          </Link>
-          <div className="flex flex-col gap-1">
-            <h1 className="text-xl font-bold">Post</h1>
-          </div>
-        </div>
+        <PageHeader />
         {isNested && isNested ? (
-          <div className="flex items-start flex-col h-full justify-center">
-            <div className="flex items-start gap-3 h-full">
-              <div className="flex flex-col relative h-full w-full items-center gap-2">
-                <>
-                  <img
-                    src={
-                      (post &&
-                        post.parentPostId &&
-                        post.parentPostId.author &&
-                        post.parentPostId.author.profilePicture) ||
-                      (firstHiddenData &&
-                        firstHiddenData.author &&
-                        firstHiddenData.author.profilePicture)
-                    }
-                    className="h-10 w-10 mt-2 rounded-full"
-                    alt="profile"
-                  />
-                  <div
-                    className={`bg-gray-600 mt-1 top-12 absolute w-[2px]`}
-                    style={{ height: `${calHeight && calHeight}px` }}
-                  />
-                </>
-              </div>
-
-              <div className="items-start  flex-col  flex">
-                <Link
-                  to={{
-                    pathname: `/profile/${
-                      (post &&
-                        post.parentPostId.author.handle) ||
-                      (post && post.user && post.user.handle)
-                    }`,
-                  }}
-                >
-                  <h1 className="text-lg  w-72 font-semibold">
-                    {(post &&
-                      post.parentPostId.author.handle) ||
-                      (post && post.user && post.user.handle)}
-                  </h1>
-                </Link>
-                <Link
-                  to={`/profile/${
-                    (post &&
-                      post.parentPostId.author.handle) ||
-                    (post && post.user && post.user.handle)
-                  }`}
-                >
-                  <p className="text-gray-500">
-                    @
-                    {(post &&
-                      post.parentPostId.author.handle) ||
-                      (post && post.user && post.user.handle)}
-                  </p>
-                </Link>
-              </div>
-            </div>
-            <div className="cal-height pl-12" ref={calHeightRef}>
-              <div className="ml-1">
-                <p className="text-lg mt-2">
-                  {post.parentPostId && post.parentPostId.content}
-                </p>
-                {renderImages()}
-              </div>
-            </div>
-            {pageNestedComments &&
-              pageNestedComments.map((comment) => (
-                <Comments key={comment._id} post={comment} nested={1} />
-              ))}
-          </div>
+          <NestedPage
+            post={post}
+            firstHiddenData={firstHiddenData}
+            calHeightRef={calHeightRef}
+            calHeight={calHeight}
+            pageNestedComments={pageNestedComments}
+            isNested={isNested}
+          />
         ) : (
           <>
-            <div className="flex items-start flex-col justify-center">
-              <div className="flex items-start gap-3">
-                <img
-                  src={post && post.author && post.author.profilePicture}
-                  className="h-10 w-10 mt-2 rounded-full"
-                  alt="profile"
-                />
-                <div className="items-start flex-col flex">
-                  <Link to={`/profile/${post.author && post.author.handle}`}>
-                    <h1 className="text-lg font-semibold">
-                      {post.author && post.author.handle}
-                    </h1>
-                  </Link>
-                  <Link to={`/profile/${post.author && post.author.handle}`}>
-                    <p className="text-gray-500">
-                      @{post.author && post.author.handle}
-                    </p>
-                  </Link>
-                </div>
-              </div>
-              <div className="">
-                <div className="ml-1">
-                  <p className="text-lg mt-2">{post && post.content}</p>
-                  {renderImages()}
-                </div>
-              </div>
-            </div>
-            <h1 className="text-[17px] tracking-wider text-gray-500 font-medium">
-              5:40 PM . Jun 9, 2024 . 1.1M Views
-            </h1>
+            <MainPostPage
+              post={post}
+              firstHiddenData={firstHiddenData}
+              calHeightRef={calHeightRef}
+              calHeight={calHeight}
+              pageNestedComments={pageNestedComments}
+              isNested={isNested}
+            />
           </>
         )}
 
         <div className="w-full px-4 h-[1px] bg-gray-600" />
         <div className="text-gray-500 flex justify-around text-xl -ml-4 w-full">
-          {/* <Link to="  "> */}
-          <button className="flex gap-2 items-center"
+          <button
+            className="flex gap-2 items-center"
             onClick={() => {
               setComposeModal(!composeModal);
             }}
@@ -403,18 +261,36 @@ const PostPage = ({ setSideSec2 }) => {
             <FaRegComment />
             <p className="text-[16px]">656</p>
           </button>
-          {/* </Link> */}
-          <button className="flex gap-2 items-center">
-            <FaRetweet />
-            <p className="text-[16px]">10</p>
+          <button className="flex gap-2 items-center  "
+           style={{ color: retweet ? "#005d96" : "inherit" }}
+            onClick={async () => {
+              await axios.post(`${URL}/post/${postId}/retweet`, {
+                userId: authUser.userId,
+              });
+              setRerender(!rerender);
+              setRetweet(true);
+            }}
+          >
+            <FaRetweet 
+            />
+            <p className="text-[16px]">{post && post.retweets}</p>
           </button>
-          <button className="flex gap-2 items-center">
-            <FiHeart />
-            <p className="text-[16px]">566</p>
+          <button className="flex gap-2 items-center" onClick={handleLike}>
+            {isLiked ? (
+              <div className="flex  items-center gap-2">
+                <img src={heartPng} className="h-6 w-6" />
+                <p className="text-[16px]">{likeCount}</p>
+              </div>
+            ) : (
+              <FiHeart
+                style={{ color: isLiked ? "red" : "inherit" }}
+                onClick={handleLike}
+              />
+            )}
           </button>
           <button className="flex gap-2 items-center">
             <IoStatsChartSharp />
-            <p className="text-[16px]">10</p>
+            <p className="text-[16px]">{post && post.views}</p>
           </button>
           <div className="flex gap-4 justify-between">
             <button className="flex gap-2 items-center">
@@ -423,7 +299,6 @@ const PostPage = ({ setSideSec2 }) => {
           </div>
         </div>
         <div className="w-full h-[1px] bg-gray-600" />
-
         <div className="rounded-2xl items-start justify-start max-h-[30rem] flex px-2 py-5 w-full gap-4 overflow-y-auto">
           <img
             src={authUser?.picture}
@@ -481,7 +356,7 @@ const PostPage = ({ setSideSec2 }) => {
                 </div>
 
                 <button
-                  className="bg-[#1d9bf0]  h-10 w-20 rounded-full text-lg items-center flex justify-center text-white font-semibold"
+                  className="bg-[#1d9bf0] h-10 w-20 rounded-full text-lg items-center flex justify-center text-white font-semibold"
                   onClick={handlePost}
                   disabled={loading || !content}
                 >
@@ -501,16 +376,16 @@ const PostPage = ({ setSideSec2 }) => {
       </div>
 
       {composeModal && (
-        <div className="fixed top-0  z-[1] rounded-3xl left-0 w-full h-full bg-[#242d34] bg-opacity-60 flex-col flex items-center justify-start">
-          <div className=" relative    items-start justify-start w-[50%] py-5 mt-20   flex flex-col    bg-black rounded-2xl">
+        <div className="fixed top-0 z-[1] rounded-3xl left-0 w-full h-full bg-[#242d34] bg-opacity-60 flex-col flex items-center justify-start">
+          <div className="relative items-start justify-start w-[50%] py-5 mt-20 flex flex-col bg-black rounded-2xl">
             <div
               onClick={() => {
                 setComposeModal(false);
                 setRerender(!rerender);
               }}
-              className=" cursor-pointer"
+              className="cursor-pointer"
             >
-              <div className=" top-3 z-[1]  absolute left-3">
+              <div className="top-3 z-[1] absolute left-3">
                 <IoClose className="text-white text-2xl" />
               </div>
             </div>

@@ -346,3 +346,88 @@ export const checklogin = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 }
+
+export const CreateLike = async (req, res) => {
+    const { postId } = req.params;
+    const { userId } = req.body;
+
+    console.log('postId:', postId);
+    console.log('userId:', userId);
+
+    try {
+        const post = await PostModel.findById(postId);
+        console.log('post:', post);
+
+        if (!post) {
+            return res.status(404).json({ success: false, message: "Post not found" });
+        }
+
+        // Convert userId to string if necessary for comparison
+        const userIdStr = userId.toString();
+
+        // Check if user already liked the post and remove the like
+        if (post.likes.includes(userIdStr)) {
+            // Filter out null values from likes array before comparison
+            post.likes = post.likes.filter(id => id !== null).filter(id => id.toString() !== userIdStr);
+            await post.save();
+            return res.status(200).json({ success: true, message: "Post unliked successfully", post });
+        }
+
+        // Add the like
+        post.likes.push(userIdStr);
+        await post.save();
+        res.status(200).json({ success: true, message: "Post liked successfully", post });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+export const RetweetPost = async (req, res) => {
+    const { postId } = req.params;
+    try {
+        const post = await PostModel.findById(postId);
+        if (!post) {
+            return res.status(404).json({ success: false, message: "Post not found" });
+        }
+        post.retweets += 1;
+        await post.save();
+        res.status(200).json({ success: true, message: "Post retweeted successfully", post });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+
+export const viewInc = async (req, res) => {
+    const { postId } = req.params;
+    try {
+        const post = await PostModel.findById(postId);
+        if (!post) {
+            return res.status(404).json({ success: false, message: "Post not found" });
+        }
+        post.views += 1;
+        await post.save();
+        res.status(200).json({ success: true, message: "Post viewed successfully", post });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+
+export const getallFollowingposts = async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+        const followingPosts = await PostModel.find({ author: { $in: user.following } }).populate('author').sort({ createdAt: -1 });
+        res.status(200).json({ success: true, followingPosts });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};

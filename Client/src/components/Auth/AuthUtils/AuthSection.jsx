@@ -77,6 +77,8 @@ const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("likedPosts");
+
     setUser(null);
     delete axios.defaults.headers.common["Authorization"];
   };

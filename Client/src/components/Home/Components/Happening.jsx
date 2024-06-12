@@ -5,9 +5,12 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useMainDashContext } from "../../../Context/AppContext";
 import { URL } from "../../../../Link";
+
 const Happening = () => {
   const { SideSec } = useMainDashContext();
   const [randomUsers, setRandomUsers] = useState([]);
+  const [searchResults, setSearchResults] = useState([]);
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   useEffect(() => {
     const fetchRandomUsers = async () => {
@@ -21,9 +24,37 @@ const Happening = () => {
 
     fetchRandomUsers();
   }, []);
+
+  const debounce = (func, delay) => {
+    let inDebounce;
+    return function () {
+      const context = this;
+      const args = arguments;
+      clearTimeout(inDebounce);
+      inDebounce = setTimeout(() => func.apply(context, args), delay);
+    };
+  };
+
+  const fetchSearchResults = debounce(async (search) => {
+    if (search.trim() === "") {
+      setShowSearchResults(false);
+      return;
+    }
+
+    try {
+      const response = await axios.get(`${URL}/api/auth/search/${search}`);
+      setSearchResults(response.data);
+      setShowSearchResults(true);
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  }, 600);
+
   return (
     <>
-      <div className={`py-2 sticky top-0 border-l border-[#2f3336]   md:hidden sm:hidden lg:block hidden h-screen px-6 ${SideSec?'w-[30%]':'w-[55%]'}`}>
+      <div
+        className={`py-2 sticky top-0 border-l border-[#2f3336] md:hidden sm:hidden lg:block hidden h-screen px-6  `}
+      >
         <div className=" ">
           <div className="bg-[#202327] flex items-center justify-start  mt-2 rounded-full  w-[18rem] h-11 px-4 gap-3 ">
             <IoSearch className="text-2xl text-gray-500" />
@@ -31,9 +62,33 @@ const Happening = () => {
               type="text"
               placeholder="Search Twitter"
               className=" h-10 text-sm   border-none active:outline-none outline-none bg-[#202327] focus:border-none   text-white"
+              onChange={(e) => {
+                fetchSearchResults(e.target.value);
+              }}
             />
           </div>
         </div>
+        {showSearchResults && (
+          <div className="  border-[1px] px-4 py-2 border-[#2f3336] rounded-xl  gap-4 flex flex-col mt-4 w-full ">
+            <h1 className=" text-xl font-semibold">Search Results</h1>
+            <div className=" flex flex-col gap-3  ">
+              {searchResults.map((result) => (
+                <Link to={`/profile/${result.handle}`} className=" flex">
+                <div
+                  key={result.id}
+                  className="flex  gap-3 items-center  justify-start  "
+                >
+                    <img src={result.profilePicture} className="h-7 w-7 rounded-full" alt="profile" />
+                    <div>
+                      <h1 className="font-semibold text-[1.05rem]">{result.username}</h1>
+                      <p className="text-sm text-[#71767b]">@{result.handle}</p>
+                    </div>
+                </div>
+                  </Link>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="  border-[1px] px-4 py-2 border-[#2f3336] rounded-xl  gap-4 flex flex-col mt-4 w-full ">
           <h1 className=" text-xl font-semibold">What's Happening</h1>
           <div className=" flex flex-col gap-3  ">
@@ -63,15 +118,26 @@ const Happening = () => {
         <div className="border px-4 py-2 border-[#2f3336] rounded-xl gap-4 flex flex-col mt-4 w-full  pb-6">
           <h1 className="text-xl font-semibold">Who to follow</h1>
           {randomUsers.map((user) => (
-            <div key={user.id} className="flex h-14 gap-8 w-full rounded-full text-lg items-center -mb-2 justify-between text-white font-semibold">
+            <div
+              key={user.id}
+              className="flex h-14 gap-8 w-full rounded-full text-lg items-center -mb-2 justify-between text-white font-semibold"
+            >
               <Link to={`/profile/${user.handle}`}>
-              <div className="flex items-center gap-2">
-                <img src={user.profilePicture} className="h-8 w-8 rounded-full" alt="profile" />
-                <div>
-                  <h1 className="text-sm line-clamp-1  overflow-hidden font-semibold">{user.username}</h1>
-                  <h2 className="text-gray-500 line-clamp-1  text-sm">@{user.handle}</h2>
+                <div className="flex items-center gap-2">
+                  <img
+                    src={user.profilePicture}
+                    className="h-8 w-8 rounded-full"
+                    alt="profile"
+                  />
+                  <div>
+                    <h1 className="text-sm line-clamp-1  overflow-hidden font-semibold">
+                      {user.username}
+                    </h1>
+                    <h2 className="text-gray-500 line-clamp-1  text-sm">
+                      @{user.handle}
+                    </h2>
+                  </div>
                 </div>
-              </div>
               </Link>
               <button className="bg-white   h-8 w-20 rounded-full text-xs items-center flex justify-center text-black font-semibold">
                 Follow
