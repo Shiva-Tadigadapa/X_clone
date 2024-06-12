@@ -177,11 +177,19 @@ const NestedPage = ({
           
         </div>
         <div className="cal-height pl-12" ref={calHeightRef}>
-          <div className="ml-1">
+        <div className={`${firstHiddenData&& firstHiddenData.mediaUrl && firstHiddenData.mediaUrl[0] ?' w-full':' lg:w-[30rem] w-full sm:w-full md:w-full'} mt-1  `}>
+            <div  className=" flex items-center gap-2">
+
             <p className="text-lg mt-2">
               {(post.parentPostId && post.parentPostId.content) ||
                 (firstHiddenData && firstHiddenData.content)}
             </p>
+            <p className=" text-lg text-blue-500 mt-2">
+                  {
+                    firstHiddenData.hashtags && firstHiddenData.hashtags.map((tag) => `#${tag} `)
+                    }
+                </p>
+                  </div>
             {renderImages(isNested, post, firstHiddenData)}
           </div>
         </div>

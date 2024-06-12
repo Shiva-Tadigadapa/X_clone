@@ -41,6 +41,7 @@ export const MainDashProvider = ({ children }) => {
   }, [HiddenDatah]);
   const [postRender, setPostRender] = useState(false);
   const [SideSec, setSideSec] = useState(0);
+  const [profileNav, setProfileNav] = useState("Posts");
 
   return (
     <MainDashContext.Provider
@@ -61,6 +62,8 @@ export const MainDashProvider = ({ children }) => {
         setPostRender,
         SideSec,
         setSideSec,
+        profileNav,
+        setProfileNav,
       }}
     >
       {children}

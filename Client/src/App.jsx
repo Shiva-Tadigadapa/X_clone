@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import SignUp from "./components/Auth/SignUp";
 import SignIn from "./components/Auth/SignIn";
@@ -6,7 +6,8 @@ import { useMainDashContext } from "./Context/AppContext";
 import Home from "./components/Home/Home";
  import NewPost from "./components/Home/Components/FeedUtils/NewPost";
 import PostPage from "./components/PostDetails/PostPage";
-
+import { URL } from "../Link";
+import { Toaster, toast } from 'sonner'
 function App() {
   const { isDarkMode } = useMainDashContext();
   const [CraModal, setCraModal] = useState(true);
@@ -17,6 +18,24 @@ function App() {
   const handleLoginModalUpdate = () => {
     setLoginModal(!loginModal); // Set the modal to false to close it
   };
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const wakeUpServer = async () => {
+      try {
+        const response = await fetch(`${URL}/wake-up`);
+        const data = await response.json();
+        console.log(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (count < 5) {
+      wakeUpServer();
+      setCount(count + 1);
+    }
+  }, [count]);
 
   return (
     <>

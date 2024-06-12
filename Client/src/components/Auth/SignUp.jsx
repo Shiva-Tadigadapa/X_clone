@@ -11,12 +11,22 @@ import { FcGoogle } from "react-icons/fc";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { URL } from "../../../Link";
+import { toast } from "sonner";
 
 const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
   const { CreateAccount, setCreateAccount, setAuthUser } = useMainDashContext();
   const [credentials, setCredentials] = useState({ EorU: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState("");
+  // const [otp, setOtp] = useState('');
+
+  const handleOtpChange = (e) => {
+    const value = e.target.value;
+    // Allow only numeric values and limit the length to 6 characters
+    if (/^\d{0,6}$/.test(value)) {
+      setOtp(value);
+    }
+  };
   const navigate = useNavigate();
   const handleInputChange = (e) => {
     setCredentials((prevState) => ({
@@ -40,10 +50,13 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
         email: CreateAccount.email,
         // password: CreateAccount.password,
       });
+
       console.log(response.data);
       setCraModal2(true);
+      toast.success("Email OTP sent successfully to " + CreateAccount.email);
     } catch (error) {
       console.error(error);
+      toast.error(error.response.data.message);
     }
     setLoading(false);
   };
@@ -59,11 +72,13 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
       const { token, user } = response.data;
       if (response.data.success) {
         verifyToken(token);
+        toast.success("Account Created Successfully!");
       } else {
         console.error("Verification failed");
       }
     } catch (error) {
       console.error(error);
+      toast.error(error.response.data.message);
     }
     setLoading(false);
   };
@@ -151,6 +166,16 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("likedPosts");
+    toast.success("Logout Successful");
+    setUser(null);
+    delete axios.defaults.headers.common["Authorization"];
+  };
+
   return (
     <>
       {type === "signup" && (
@@ -175,19 +200,17 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
                   </h1>
                   <div className=" flex flex-col gap-4">
                     <input
-                      inputmode="numeric"
-                      //add a text limit to 5 characters
-                      maxlength="6"
+                      inputMode="numeric"
+                      maxLength="6"
                       min="0"
-                      max="9999"
+                      max="999999"
                       step="1"
                       type="text"
                       autoComplete="off"
-                      placeholder="Verification Code sent to email"
-                      className=" w-full h-10   border-b py-6 px-4 border-[#2f3336] bg-transparent  focus:outline-none text-white mt-4 "
-                      onChange={(e) => (
-                        setOtp(e.target.value), console.log(otp)
-                      )}
+                      placeholder="Verification Code sent to email or 12345 for test"
+                      className="w-full h-10 border-b py-6 px-4 border-[#2f3336] bg-transparent focus:outline-none text-white mt-4"
+                      value={otp}
+                      onChange={handleOtpChange}
                     />
                     <input
                       type="password"
@@ -200,7 +223,7 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
                     />
                   </div>
                   <button
-                    className=" w-full h-12 rounded-full  bg-white/50 text-black text-lg font-bold mt-4"
+                    className=" w-full h-12 rounded-full  bg-white/90 text-black text-lg font-bold mt-4"
                     onClick={handleSubmit2}
                   >
                     Verify & Create Account
@@ -246,9 +269,12 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
                     />
                   </div>
                   <button
-                    className=" w-full h-12 rounded-full  bg-white/50 text-black text-lg font-bold mt-4"
+                    className=" w-full h-12 rounded-full  text-black text-lg font-bold mt-4"
                     onClick={handleSubmit}
                     disabled={loading}
+                    style={{
+                      backgroundColor: loading ? "#fff" : "#c0bebe",
+                    }}
                   >
                     {loading ? "Loading..." : "Next"}
                   </button>
@@ -279,29 +305,47 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
                 </h1>
                 <div className="flex flex-col items-center gap-2">
                   <GoogleOAuthProvider clientId="199764480225-1npvvugr55pmnehika7e2dnkmpv42c01.apps.googleusercontent.com">
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onFailure={handleGoogleFailure}
-                      cookiePolicy="single_host_origin"
-                      containerProps={{
-                        className:
-                          "flex items-center justify-center gap-2 w-[21rem] bg-white text-black rounded-full border border-gray-300 shadow-sm hover:bg-gray-100 transition duration-300",
-                      }}
-                      render={(renderProps) => (
+                    {!user ? (
+                      <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onFailure={handleGoogleFailure}
+                        cookiePolicy="single_host_origin"
+                        containerProps={{
+                          className:
+                            "flex items-center justify-center gap-2 w-[20rem] h-12 bg-white text-black rounded-full border border-gray-300 shadow-sm hover:bg-gray-100 transition duration-300",
+                        }}
+                        render={(renderProps) => (
+                          <button
+                            type="button"
+                            style={{
+                              border: "none !important",
+                            }}
+                            className="flex items-center justify-center gap-2 w-[20rem] h-12 bg-white text-black rounded-full border border-gray-300 shadow-sm hover:bg-gray-100 transition duration-300"
+                            onClick={renderProps.onClick}
+                            disabled={renderProps.disabled}
+                          >
+                            <FcGoogle className="text-2xl" />
+                            Sign in with Google
+                          </button>
+                        )}
+                      />
+                    ) : (
+                      <>
                         <button
                           type="button"
-                          style={{
-                            border: "none !important",
-                          }}
                           className="flex items-center justify-center gap-2 w-[20rem] h-12 bg-white text-black rounded-full border border-gray-300 shadow-sm hover:bg-gray-100 transition duration-300"
-                          onClick={renderProps.onClick}
-                          disabled={renderProps.disabled}
                         >
-                          <FcGoogle className="text-2xl" />
-                          Sign in with Google
+                          Signed in as {user.name}
                         </button>
-                      )}
-                    />
+                        <button
+                          type="button"
+                          onClick={handleLogout}
+                          className="flex items-center justify-center gap-2 w-[20rem] h-12 bg-red-500 text-white rounded-full shadow-sm hover:bg-red-600 transition duration-300"
+                        >
+                          Logout
+                        </button>
+                      </>
+                    )}
                   </GoogleOAuthProvider>
 
                   <h1 className="  text-xl">or</h1>

@@ -50,13 +50,19 @@ const userSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Tweet',
     }],
-    likedTweets: [{
+    likedPosts: [{
         type: Schema.Types.ObjectId,
-        ref: 'Tweet',
-    }],
+        ref: 'Post',
+    }], 
     retweetedTweets: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Tweet',
+        tweetId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Tweet',
+        },
+        commentIds: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Comment',
+        }],
     }],
     // Add other fields as needed
 }, { timestamps: true });

@@ -13,12 +13,14 @@ import { URL } from "../../../../../Link";
 import axios from "axios";
 import { useMainDashContext } from "../../../../Context/AppContext";
 import verifipng from "../../../../assets/verifi.png";
-
-const FeedPost = ({ post, userProfile }) => {
+import { MdDelete } from "react-icons/md";
+import { toast } from "sonner";
+const FeedPost = ({ deletePost, post, userProfile }) => {
   // console.log(post,"djsjhdjshj");
   const { authUser, postRender, setPostRender } = useMainDashContext();
   const commentCount = post.timeline ? post.timeline.length : 0;
   console.log(post.timeline.length);
+  console.log(post.author._id == authUser.userId, "fdfdjfjdhh");
   const [likeCount, setLikeCount] = useState(
     post.likes ? post.likes.length : 0
   );
@@ -177,6 +179,16 @@ const FeedPost = ({ post, userProfile }) => {
     }
   };
 
+  const deletePostById = async (postId) => {
+    try {
+      await axios.delete(`${URL}/post/${postId}/delete`);
+      setPostRender(!postRender);
+      toast.success("Post deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col hover:bg-[#181818] border-b w-full border-[#2f3336] items-start py-5 gap-3 px-6">
@@ -220,10 +232,18 @@ const FeedPost = ({ post, userProfile }) => {
                 </div>
                 <img src={verifipng} className=" w-5 h-5 mt-1.5" alt="" />
               </div>
-              <div className=" ">
+              <div className="  flex gap-2 ">
                 <p className="text-gray-500">
                   {post.createdAt && renderhrsAgo(post.createdAt)} ago
                 </p>
+                {(post.author._id == authUser.userId ||
+                  post.author == authUser.userId) && (
+                  <MdDelete
+                    onClick={() => deletePostById(post._id)}
+                    className="text-red-400 text-2xl cursor-pointer"
+                  />
+                )}
+                {/* <MdDelete onClick={()=>deletePost(post._id)} className="text-red-400 text-2xl cursor-pointer" /> */}
               </div>
             </div>
             <Link
@@ -233,7 +253,12 @@ const FeedPost = ({ post, userProfile }) => {
               }/post/${post._id}`}
             >
               <div>
-                <p className="text-lg mt-1">{post?.content}</p>
+                <div className=" flex items-center  gap-2 ">
+                  <p className="text-lg mt-1">{post?.content}</p>
+                  <p className=" text-lg text-blue-500 mt-1.5">
+                    {post.hashtags && post.hashtags.map((tag) => `#${tag} `)}
+                  </p>
+                </div>
                 {renderImages()}
               </div>
             </Link>

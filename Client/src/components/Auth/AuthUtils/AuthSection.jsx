@@ -8,6 +8,7 @@ import { IoLockClosedOutline } from "react-icons/io5";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { URL } from "../../../../Link";
+import {  toast } from 'sonner'
 
 const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
   const { authUser, setAuthUser } = useMainDashContext();
@@ -56,6 +57,7 @@ const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
           "Authorization"
         ] = `Bearer ${res.data.token}`;
         navigate("/home", { replace: true });
+        toast.success("Login Successful to "+ res.data.user.name)
 
         // Setup token refresh
         setupRefreshToken(res.data.token);
@@ -78,7 +80,7 @@ const AuthSection = ({ CraModal2, setCraModal, handleCraModalUpdate }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("likedPosts");
-
+    toast.success("Logout Successful")
     setUser(null);
     delete axios.defaults.headers.common["Authorization"];
   };

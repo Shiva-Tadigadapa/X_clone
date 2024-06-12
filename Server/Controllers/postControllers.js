@@ -5,22 +5,22 @@ import mongoose from 'mongoose'; // Import mongoose
 const parentId = new mongoose.Types.ObjectId();
 const { ObjectId } = mongoose.Types; // Destructure ObjectId from mongoose.Types
 export const createPost = async (req, res) => {
-    const { content, images, userId } = req.body;
-    // console.log('req.body:', req.body);
-
+    const { content, images, userId, hashtags } = req.body;
+  
     try {
-        const mediaUrl = images.map((image) => image.url);
-        const author = userId;
-
-        const newPost = new PostModel({ author, content, mediaUrl });
-        await newPost.save();
-        res.status(200).json({ success: true, message: 'Post created successfully', post: newPost });
+      const mediaUrl = images.map((image) => image.url);
+      const author = userId;
+  
+      // Create new post object including hashtags
+      const newPost = new PostModel({ author, content, mediaUrl, hashtags });
+      await newPost.save();
+  
+      res.status(200).json({ success: true, message: 'Post created successfully', post: newPost });
     } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ success: false, message: 'Failed to create post' });
+      console.error(error.message);
+      res.status(500).json({ success: false, message: 'Failed to create post' });
     }
-};
-
+  };
 
 export const getallposts = async (req, res) => {
     try {
@@ -139,10 +139,8 @@ export const createComment = async (req, res) => {
     const { parentCommentId, userId, content, mediaUrl } = req.body;
 
     try {
-        // Log the value of commentText for debugging
-        // console.log("Comment text:", content);
-
-        // Check if comment text is provided
+        
+        const user = await UserModel.findById(userId);
         if (!content) {
             return res.status(400).json({ success: false, message: "Comment text is required" });
         }
@@ -176,6 +174,16 @@ export const createComment = async (req, res) => {
                 parentPost.timeline.push(savedComment._id);
                 parentPost.parentPostId = parentCommentId;
                 await parentPost.save();
+                let retweetedTweet = user.retweetedTweets.find(tweet => String(tweet.tweetId) === String(parentCommentId));
+                if (!retweetedTweet) {
+                    retweetedTweet = { tweetId: parentCommentId, commentIds: [savedComment._id] }; // Wrap savedComment._id in an array
+                    user.retweetedTweets.push(retweetedTweet);
+                } else {
+                    // Add the new comment ID to retweetedTweet's commentIds array
+                    retweetedTweet.commentIds.push(savedComment._id);
+                }
+                await user.save();
+    
                 // console.log("Top-level comment added to post", parentPost);
             } else {
                 // console.log('parentPost.hasComments: ', parentCommentId);
@@ -185,6 +193,14 @@ export const createComment = async (req, res) => {
                 parentPost.timeline.push(savedComment._id);
                 parentPost.parentPostId = parentCommentId;
                 await parentPost.save();
+                let retweetedTweet = user.retweetedTweets.find(tweet => String(tweet.tweetId) === String(parentCommentId));
+                if (!retweetedTweet) {
+                    retweetedTweet = { tweetId: parentCommentId, commentIds: [savedComment._id] }; // Wrap savedComment._id in an array
+                    user.retweetedTweets.push(retweetedTweet);
+                } else {
+                    // Add the new comment ID to retweetedTweet's commentIds array
+                    retweetedTweet.commentIds.push(savedComment._id);
+                }
                 // console.log("Nested comment added to comment", parentPost);
             
             }
@@ -351,38 +367,45 @@ export const CreateLike = async (req, res) => {
     const { postId } = req.params;
     const { userId } = req.body;
 
-    console.log('postId:', postId);
-    console.log('userId:', userId);
-
     try {
+        // Find the post
         const post = await PostModel.findById(postId);
-        console.log('post:', post);
-
         if (!post) {
             return res.status(404).json({ success: false, message: "Post not found" });
         }
 
-        // Convert userId to string if necessary for comparison
-        const userIdStr = userId.toString();
+        // Find the user
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
 
-        // Check if user already liked the post and remove the like
-        if (post.likes.includes(userIdStr)) {
-            // Filter out null values from likes array before comparison
-            post.likes = post.likes.filter(id => id !== null).filter(id => id.toString() !== userIdStr);
+        // Check if the user already liked the post
+        const alreadyLiked = user.likedPosts.includes(postId);
+
+        // If the post is already liked, remove the like
+        if (alreadyLiked) {
+            const index = user.likedPosts.indexOf(postId);
+            user.likedPosts.splice(index, 1);
+            await user.save();
+            // Remove the user's ID from the post's likes array
+            post.likes = post.likes.filter((id) => id.toString() !== userId);
             await post.save();
             return res.status(200).json({ success: true, message: "Post unliked successfully", post });
         }
 
-        // Add the like
-        post.likes.push(userIdStr);
+        // If the post is not already liked, add the like
+        user.likedPosts.push(postId);
+        await user.save();
+        // Add the user's ID to the post's likes array
+        post.likes.push(userId);
         await post.save();
-        res.status(200).json({ success: true, message: "Post liked successfully", post });
+        return res.status(200).json({ success: true, message: "Post liked successfully", post });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
-
 export const RetweetPost = async (req, res) => {
     const { postId } = req.params;
     try {
@@ -431,3 +454,69 @@ export const getallFollowingposts = async (req, res) => {
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
+
+export const deletePost = async (req, res) => {
+    const { postId } = req.params;
+
+    try {
+        // Find and delete the post
+        const post = await PostModel.findByIdAndDelete(postId);
+
+        if (!post) {
+            return res.status(404).json({ success: false, message: "Post not found" });
+        }
+
+        // Delete associated comments
+        await CommentModel.deleteMany({ parentPostId: postId });
+
+        res.status(200).json({ success: true, message: "Post deleted successfully" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
+
+export const retweetedComments = async (req, res) => {
+try {
+    // Fetch retweetedTweets for a specific user
+    const { id } = req.params; // Assuming userId is passed as a query parameter
+    const user = await UserModel.findById(id);
+    if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Extract retweetedTweets
+    const retweetedTweets = user.retweetedTweets || [];
+
+    // Populate retweetedTweets with complete parent comment and saved comment objects
+    const populatedTweets = await Promise.all(retweetedTweets.map(async (retweetedTweet) => {
+        // Fetch parent post/comment object
+        const parent = await PostModel.findById(retweetedTweet.tweetId).populate('author').lean().exec();
+        if (!parent) {
+            // If the parent post/comment is not found, skip this retweeted tweet
+            return null;
+        }
+
+        // Fetch saved comment object
+        const savedComment = await CommentModel.findById(retweetedTweet.commentIds[0]).populate('user').lean().exec();
+        if (!savedComment) {
+            // If the saved comment is not found, skip this retweeted tweet
+            return null;
+        }
+
+        // Return retweeted tweet object with parent and saved comment
+        return {
+            parent,
+            savedComment
+        };
+    }));
+
+    // Filter out null values (tweets with missing parent or saved comment)
+    const filteredTweets = populatedTweets.filter(tweet => tweet !== null);
+
+    res.status(200).json({ success: true, retweetedTweets: filteredTweets });
+} catch (error) {
+    console.error("Error fetching retweeted tweets:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+}
+}

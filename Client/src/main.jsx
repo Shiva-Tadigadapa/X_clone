@@ -5,12 +5,14 @@ import App from "./App.jsx";
 import "./index.css";
 import { MainDashProvider } from "./Context/AppContext.jsx";
 import { GoogleOAuthProvider } from "@react-oauth/google";
+import { Toaster } from 'sonner'
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <MainDashProvider>
       <BrowserRouter>
-        <App />
+        <Toaster />
+        <App /> 
       </BrowserRouter>
     </MainDashProvider>
   </React.StrictMode>

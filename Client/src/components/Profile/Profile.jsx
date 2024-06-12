@@ -11,12 +11,17 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useMainDashContext } from "../../Context/AppContext";
 import { URL } from "../../../Link";
+import ReplieNav from "./utils/ReplieNav";
 
 const Profile = () => {
   const { username } = useParams();
-  const { authUser } = useMainDashContext();
+  const { authUser, postRender, setProfileNav, profileNav } =
+    useMainDashContext();
   const [userProfile, setUserProfile] = useState(null);
   const [posts, setPosts] = useState([]);
+  // const [retweetedComments, setRetweetedComments] = useState([]);
+  const [retweetedPosts, setRetweetedPosts] = useState([]);
+  const [retweetComments, setRetweetComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -26,14 +31,15 @@ const Profile = () => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          `${URL}/post/profile/${username}`
-        );
+        const response = await axios.get(`${URL}/post/profile/${username}`);
 
         if (response.data.success) {
+          console.log(response.data + "response.data.userProfile");
           setUserProfile(response.data.userProfile);
           setPosts(response.data.userProfile.posts);
-          setIsFollowing(response.data.userProfile.followers.includes(authUser.userId));
+          setIsFollowing(
+            response.data.userProfile.followers.includes(authUser.userId)
+          );
           console.log("response.data.userProfile:", response.data.userProfile);
         }
 
@@ -45,7 +51,33 @@ const Profile = () => {
     };
 
     fetchUserData();
-  }, [username, authUser.userId,isFollowing]);
+
+    const retweetedComments = async () => {
+      try {
+        const response = await axios.get(
+          `${URL}/post/retweetedComments/${authUser.userId}/retweetedComments`
+        );
+        if (response.data.success) {
+          // Extracting only the parent posts from the response data
+          const parentPosts =
+            response &&
+            response.data &&
+            response.data.retweetedTweets.map((comment) => comment.parent);
+          const commentsPosts =
+            response &&
+            response.data &&
+            response.data.retweetedTweets.map(
+              (comment) => comment.savedComment
+            );
+          setRetweetedPosts(parentPosts);
+          setRetweetComments(commentsPosts);
+        }
+      } catch (error) {
+        console.error("Error fetching posts:", error);
+      }
+    };
+    retweetedComments();
+  }, [username, authUser.userId, isFollowing, postRender]);
 
   const setHandle = (username) => {
     return username.split(" ").join("").toLowerCase();
@@ -71,21 +103,20 @@ const Profile = () => {
       setIsFollowLoading(false);
     }
   };
- 
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-    
         const response = await axios.get(
-          `${URL}/post/profile/checklogin/${authUser && authUser.userId}/${userProfile && userProfile._id}`
+          `${URL}/post/profile/checklogin/${authUser && authUser.userId}/${
+            userProfile && userProfile._id
+          }`
         );
       } catch (error) {
-        
         setLoading(false);
       }
-    
-    }
-     fetchUserData();
+    };
+    fetchUserData();
   }, [userProfile && userProfile, authUser.userId]);
 
   if (loading) {
@@ -100,8 +131,6 @@ const Profile = () => {
     return <div>No profile found</div>;
   }
 
-
-
   return (
     <>
       <div>
@@ -113,12 +142,17 @@ const Profile = () => {
             <h1 className="text-xl font-bold">
               {userProfile && userProfile.username}
             </h1>
-            <h2 className="text-xs">{userProfile&&userProfile.posts.length} posts</h2>
+            <h2 className="text-xs">
+              {userProfile && userProfile.posts.length} posts
+            </h2>
           </div>
         </div>
         <div>
           <div>
-            <img src="https://pbs.twimg.com/profile_banners/18839785/1694158725/1500x500" alt="Banner" />
+            <img
+              src="https://pbs.twimg.com/profile_banners/18839785/1694158725/1500x500"
+              alt="Banner"
+            />
           </div>
           <div className="px-4 flex items-end justify-between -mt-20 rounded-full">
             <img
@@ -174,25 +208,90 @@ const Profile = () => {
           </div>
           <div className="flex gap-5 px-2">
             <h1 className="font-semibold text-md text-gray-500">
-              <span className="text-white mr-1">{userProfile&&userProfile.following.length}</span>
+              <span className="text-white mr-1">
+                {userProfile && userProfile.following.length}
+              </span>
               Following
             </h1>
             <h1 className="font-semibold text-md text-gray-500">
-              <span className="text-white mr-1">{userProfile&&userProfile.followers.length}</span>
+              <span className="text-white mr-1">
+                {userProfile && userProfile.followers.length}
+              </span>
               Followers
             </h1>
           </div>
-          <div className="flex w-full justify-around gap-5 mt-3">
-            <button className="font-semibold text-lg">Posts</button>
-            <button className="font-semibold text-lg">Replies</button>
-            <button className="font-semibold text-lg">Media</button>
-            <button className="font-semibold text-lg">Likes</button>
+          <div className="flex w-full justify-around gap-5 mt-3 ">
+            <button
+              className={`${
+                profileNav === "Posts"
+                  ? "border-b-4 border-blue-400 bg-blue-600"
+                  : ""
+              }' font-semibold text-lg'`}
+              onClick={() => setProfileNav("Posts")}
+            >
+              Posts
+            </button>
+            <button
+              className={`${
+                profileNav === "Replies"
+                  ? "border-b-4 border-blue-400 bg-blue-600"
+                  : ""
+              }' font-semibold text-lg'`}
+              onClick={() => setProfileNav("Replies")}
+            >
+              Replies
+            </button>
+            <button
+              className={`${
+                profileNav === "Likes"
+                  ? "border-b-4 border-blue-600 bg-blue-600"
+                  : " "
+              }' font-semibold text-lg'`}
+              onClick={() => setProfileNav("Likes")}
+            >
+              Likes
+            </button>
+            <button
+              className={`${
+                profileNav === "Media"
+                  ? "border-b-4 border-blue-400 bg-blue-600"
+                  : ""
+              }' font-semibold text-lg'`}
+              onClick={() => setProfileNav("Media")}
+            >
+              Media
+            </button>
+     
           </div>
         </div>
-        <div className="w-full -mt-2 h-[0.5px] bg-gray-500" />
-        {posts.map((post) => (
-          <FeedPost key={post._id} post={post} userProfile={userProfile} />
-        ))}
+        <div className="w-full  -mt-4 h-[0.5px] bg-gray-500" />
+        {profileNav === "Posts" && (
+          <>
+            {posts.map((post) => (
+              <FeedPost
+                key={post._id}
+                post={post}
+                userProfile={userProfile}
+                deletePost={true}
+              />
+            ))}
+          </>
+        )}
+        {profileNav === "Replies" && (
+          <>
+            {retweetedPosts &&
+              retweetedPosts.map((post, index) => (
+                <ReplieNav
+                  key={post._id}
+                  post={post}
+                  userProfile={userProfile}
+                  retweetComments={retweetComments[index]}
+                  deletePost={true}
+                />
+              ))}
+          </>
+        )}
+        {/* {profileNav === "Likes" } */}
       </div>
     </>
   );

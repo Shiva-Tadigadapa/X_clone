@@ -78,7 +78,12 @@ const postSchema = new Schema({
     parentPostId: {
         type: Schema.Types.ObjectId,
         ref: 'Post',
-    }
+    },
+    hashtags: {
+        type: [String],
+        default: []
+      },
+
 }, { timestamps: true });
 
 postSchema.index({

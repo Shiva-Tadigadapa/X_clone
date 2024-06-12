@@ -19,33 +19,35 @@ const SideSection = () => {
       <div className=" px-10 lg:flex flex-col items-start  w-full    sm:hidden md:hidden  hidden justify-between  h-full py-2">
         <div className=" flex flex-col  gap-6   ">
           <img src={Xicon} className="h-14  w-14 -ml-2" alt="profile" />
+          <Link to={`/home`}>
           <button className=" flex    rounded-full w-full  items-center gap-3 text-2xl font-semibold">
             {" "}
             <GoHomeFill className="text-3xl " />
             Home
           </button>
+          </Link>
           <button className=" flex  items-center gap-3 text-xl  text-gray-300">
             <IoSearch className="text-2xl" />
             Explore
           </button>
-          <button className=" flex  items-center gap-3 text-xl ">
+          <button className=" flex  items-center gap-3  text-gray-300 text-xl ">
             <IoNotificationsOutline className="text-2xl" /> Notifications
           </button>
-          <button className=" flex  items-center gap-3 text-xl ">
+          <button className=" flex  items-center text-gray-300 gap-3 text-xl ">
             <MdMailOutline className="text-2xl" />
             Messages
           </button>
-          <button className=" flex  items-center gap-3 text-xl ">
+          <button className=" flex  items-center text-gray-300 gap-3 text-xl ">
             <IoBookmarksOutline className="text-2xl" />
             Bookmarks
           </button>
           <Link to={`/profile/${authUser.handle}`}>
-            <button className=" flex  items-center gap-3 text-xl ">
+            <button className=" flex  items-center  gap-3 text-xl ">
               <IoPersonOutline className="text-2xl" />
               Profile
             </button>
           </Link>
-          <button className=" flex  items-center gap-3 text-xl ">
+          <button className=" flex  items-center text-gray-300 gap-3 text-xl ">
             {" "}
             <CiCircleMore className="text-2xl" />
             More

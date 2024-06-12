@@ -60,7 +60,7 @@ const MainPostPage = ({
             </p>
           </div>
         </div>
-        <div className="  ">
+        <div className={`${post&& post.mediaUrl && post.mediaUrl[0] ?'  w-full':'  lg:w-[30rem] w-full sm:w-full md:w-full'}   `}>
           <div className="ml-1 ">
             <p className="text-lg mt-2 ">{post && post.content}</p>
             {renderImages(isNested, post, firstHiddenData)}

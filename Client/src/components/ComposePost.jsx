@@ -11,6 +11,7 @@ import axios from "axios";
 import { useRef } from "react";
 import { useEffect } from "react";
 import { URL } from "../../Link";
+import { toast } from "sonner";
 
 const ComposePost = ({ composeModal, post }) => {
   const { authUser } = useMainDashContext();
@@ -71,6 +72,7 @@ const ComposePost = ({ composeModal, post }) => {
 
       setContent("");
       setImages([]);
+      toast.success("Comment posted successfully on "+ post.author.handle);
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {

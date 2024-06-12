@@ -15,6 +15,9 @@ app.use(bodyParser.json());
 
 app.use('/api/auth', authRoutes);
 app.use('/post', postRoutes);
+app.use('/wake-up', (req, res) => {
+    res.send('Server is running');
+});
 const connectWithRetry = () => {
     mongoose.connect(process.env.MONGO_URI).then(() => {
         console.log('Connected to MongoDB 🥳');

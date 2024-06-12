@@ -1,5 +1,5 @@
 import express from 'express';
-import { createPost, getallposts, profile, getPost, createComment, nestedComments ,followRequest,UnfollowRequest,checklogin,CreateLike,RetweetPost,viewInc,getallFollowingposts} from '../Controllers/postControllers.js';
+import { createPost, getallposts, profile, getPost, createComment, nestedComments, followRequest, UnfollowRequest, checklogin, CreateLike, RetweetPost, viewInc, getallFollowingposts, deletePost,retweetedComments } from '../Controllers/postControllers.js';
 // deletePost, getPost, getPosts, updatePost 
 const postRoutes = express.Router();
 
@@ -22,5 +22,8 @@ postRoutes.post('/:postId/view', viewInc);
 
 postRoutes.get('/getfollowPost/:userId/followingPosts', getallFollowingposts);
 
+postRoutes.delete('/:postId/delete', deletePost);
+
+postRoutes.get('/retweetedComments/:id/retweetedComments', retweetedComments);
 
 export default postRoutes;

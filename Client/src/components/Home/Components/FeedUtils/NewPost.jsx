@@ -9,6 +9,7 @@ import ImageKit from "imagekit";
 import { IoClose } from "react-icons/io5";
 import axios from "axios";
 import { URL } from "../../../../../Link";
+import { toast } from "sonner";
 
 const NewPost = () => {
   const { authUser, setPostRender, postRender } = useMainDashContext();
@@ -16,6 +17,7 @@ const NewPost = () => {
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [hashtags, setHashtags] = useState([]);
 
   const imagekit = new ImageKit({
     publicKey: "public_u7kxH7LgunPNp3hdLZv7edHsbBI=",
@@ -31,17 +33,13 @@ const NewPost = () => {
     setLoading(true);
 
     try {
-      // Upload file to ImageKit
       const uploadResponse = await imagekit.upload({
         file,
         fileName: file.name,
       });
 
-      console.log("Upload Response:", uploadResponse);
-
       const imageUrl = uploadResponse.url;
 
-      // Update images array
       setImages((prevImages) => [...prevImages, { url: imageUrl }]);
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -50,22 +48,46 @@ const NewPost = () => {
     }
   };
 
+  const extractHashtags = (text) => {
+    const regex = /#(\w+)/g;
+    const tags = [];
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      tags.push(match[1]);
+    }
+    return tags;
+  };
+
+  const removeHashtagsFromContent = (text) => {
+    return text.replace(/#\w+/g, "").trim();
+  };
+
+  const handleContentChange = (e) => {
+    const value = e.target.value;
+    setContent(value);
+    setIsTyping(value.trim().length > 0);
+    setHashtags(extractHashtags(value));
+  };
+
   const handlePost = async () => {
     setLoading(true);
     try {
+      const cleanedContent = removeHashtagsFromContent(content);
+
       const postData = {
-        content,
+        content: cleanedContent,
         images,
         userId: authUser.userId,
+        hashtags,
       };
-
-      console.log("Post Data:", postData);
 
       await axios.post(`${URL}/post/create`, postData);
 
       setContent("");
       setImages([]);
+      setHashtags([]);
       setPostRender(!postRender);
+      toast.success("Post created successfully!");
     } catch (error) {
       console.error("Error creating post:", error);
     } finally {
@@ -74,9 +96,7 @@ const NewPost = () => {
   };
 
   return (
-    <div
-      className={`rounded-2xl max-h-[30rem] flex px-10 py-5 w-full gap-4 overflow-y-auto `}
-    >
+    <div className="rounded-2xl max-h-[30rem] flex px-10 py-5 w-full gap-4 overflow-y-auto">
       <img
         src={authUser?.picture}
         className="h-10 w-10 rounded-full"
@@ -88,12 +108,8 @@ const NewPost = () => {
           placeholder="What's happening?"
           className="w-full h-14 text-2xl border-none active:outline-none outline-none focus:border-none bg-transparent text-white"
           value={content}
-          onChange={(e) => {
-            setContent(e.target.value);
-            setIsTyping(e.target.value.trim().length > 0);
-          }}
+          onChange={handleContentChange}
         />
-
         <h1 className="text-[#1d9bf0] font-semibold">Everyone can reply</h1>
         {images.length > 0 && (
           <div className="mt-4 flex overflow-x-auto gap-2">
