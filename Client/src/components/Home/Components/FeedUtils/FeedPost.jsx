@@ -254,7 +254,7 @@ const FeedPost = ({ deletePost, post, userProfile }) => {
             >
               <div>
                 <div className=" flex items-start  flex-col gap-2 ">
-                  <p className="text-lg mt-1">{post?.content}</p>
+                  <p className="text-lg mt-1 whitespace-pre-wrap">{post?.content}</p>
                   <p className=" text-lg text-blue-500 mt-1.5">
                     {post.hashtags && post.hashtags.map((tag) => `#${tag} `)}
                   </p>
