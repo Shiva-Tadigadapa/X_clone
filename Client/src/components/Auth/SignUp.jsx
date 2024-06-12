@@ -110,7 +110,7 @@ const SignUp = ({ type, CraModal2, setCraModal2, handleCraModalUpdate }) => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post(`${URL}api/auth/login`, credentials);
+      const response = await axios.post(`${URL}/api/auth/login`, credentials);
       const { token, user } = response.data;
 
       if (response.data.success) {
