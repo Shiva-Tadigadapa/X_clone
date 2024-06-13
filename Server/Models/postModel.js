@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 
 const { Schema } = mongoose;
 
@@ -15,16 +14,12 @@ const commentSchema = new Schema({
         required: true,
         maxlength: 200,
     },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
     mediaUrl: {
         type: [String],
     },
     hasComments: {
         type: Boolean,
-        default: false
+        default: false,
     },
     timeline: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
     parentPostId: {
@@ -33,13 +28,12 @@ const commentSchema = new Schema({
     },
 }, { timestamps: true });
 
-// Create the Comment model
 const CommentModel = mongoose.model('Comment', commentSchema);
 
 const postSchema = new Schema({
     author: {
         type: Schema.Types.ObjectId,
-        ref: 'User', // Assuming your user model is named 'User'
+        ref: 'User',
         required: true,
     },
     content: {
@@ -52,9 +46,9 @@ const postSchema = new Schema({
     },
     likes: [{
         type: Schema.Types.ObjectId,
-        ref: 'User', // Assuming your user model is named 'User'
+        ref: 'User',
     }],
-    timeline: [{ type: Schema.Types.ObjectId, ref: 'Comment' }], // Timeline for top-level comments
+    timeline: [{ type: Schema.Types.ObjectId, ref: 'Comment' }],
     retweets: {
         type: Number,
         default: 0,
@@ -65,15 +59,7 @@ const postSchema = new Schema({
     },
     hasComments: {
         type: Boolean,
-        default: false
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now,
+        default: false,
     },
     parentPostId: {
         type: Schema.Types.ObjectId,
@@ -81,19 +67,13 @@ const postSchema = new Schema({
     },
     hashtags: {
         type: [String],
-        default: []
-      },
-
+        default: [],
+    },
 }, { timestamps: true });
 
 postSchema.index({
     author: 1,
-    createdAt: +1,
-});
-
-postSchema.pre('save', function (next) {
-    this.updatedAt = Date.now();
-    next();
+    createdAt: 1,
 });
 
 const PostModel = mongoose.model('Post', postSchema);

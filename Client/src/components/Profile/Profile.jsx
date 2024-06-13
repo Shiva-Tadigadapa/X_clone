@@ -32,7 +32,6 @@ const Profile = () => {
       try {
         setLoading(true);
         const response = await axios.get(`${URL}/post/profile/${username}`);
-
         if (response.data.success) {
           console.log(response.data + "response.data.userProfile");
           setUserProfile(response.data.userProfile);
@@ -55,7 +54,7 @@ const Profile = () => {
     const retweetedComments = async () => {
       try {
         const response = await axios.get(
-          `${URL}/post/retweetedComments/${authUser.userId}/retweetedComments`
+          `${URL}/post/retweetedComments/${userProfile&& userProfile._id}/retweetedComments`
         );
         if (response.data.success) {
           // Extracting only the parent posts from the response data
@@ -77,7 +76,7 @@ const Profile = () => {
       }
     };
     retweetedComments();
-  }, [username, authUser.userId, isFollowing, postRender]);
+  }, [userProfile && userProfile._id, authUser.userId, postRender,username]);
 
   const setHandle = (username) => {
     return username.split(" ").join("").toLowerCase();
@@ -150,7 +149,7 @@ const Profile = () => {
         <div>
           <div>
             <img
-              src="https://pbs.twimg.com/profile_banners/18839785/1694158725/1500x500"
+              src= {userProfile && userProfile.coverPhoto}
               alt="Banner"
             />
           </div>

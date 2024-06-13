@@ -163,6 +163,7 @@ const FeedPost = ({ deletePost, post, userProfile }) => {
     const currentDate = new Date();
     const postDate = new Date(date);
     const diff = currentDate - postDate;
+    console.log(diff, "diff")
     const seconds = Math.floor(diff / 1000);
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);

@@ -1,42 +1,72 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState,useRef } from "react";
 import { Routes, Route } from "react-router-dom";
-import SignUp from "./components/Auth/SignUp";
 import SignIn from "./components/Auth/SignIn";
 import { useMainDashContext } from "./Context/AppContext";
 import Home from "./components/Home/Home";
- import NewPost from "./components/Home/Components/FeedUtils/NewPost";
-import PostPage from "./components/PostDetails/PostPage";
 import { URL } from "../Link";
 import { Toaster, toast } from 'sonner'
+// import { response } from "express";
 function App() {
   const { isDarkMode } = useMainDashContext();
   const [CraModal, setCraModal] = useState(true);
+  const [loading, setLoading] = useState(false);
   const handleCraModalUpdate = () => {
-    setCraModal(!CraModal); // Set the modal to false to close it
+    setCraModal(!CraModal);
   };
   const [loginModal, setLoginModal] = useState(true);
   const handleLoginModalUpdate = () => {
-    setLoginModal(!loginModal); // Set the modal to false to close it
+    setLoginModal(!loginModal); 
   };
   const [count, setCount] = useState(0);
-
+  const hasFetched = useRef(false);   
   useEffect(() => {
-    const wakeUpServer = async () => {
-      try {
-        const response = await fetch(`${URL}/wake-up`);
-        const data = await response.json();
-        console.log(data);
-      } catch (error) {
-        console.log(error);
-      }
+    const wakeUpServer = async() => {
+      return new Promise((resolve, reject) => {
+    
+        fetch(`${URL}/wake-up`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            // Check content type
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              return response.json();
+            } else {
+              return response.text(); // Handle non-JSON response as text
+            }
+          })
+          .then(data => {
+            console.log('Fetch succeeded:', data);
+            resolve(data);
+          })
+          .catch(error => {
+            console.error('Fetch failed:', error);
+            reject(error);
+          });
+      });
     };
 
-    if (count < 5) {
-      wakeUpServer();
-      setCount(count + 1);
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      const fetchPromise = wakeUpServer();
+      toast.promise(fetchPromise, {
+        loading: 'Waking up server...',
+        success: (data) => {
+          if (typeof data === 'object') {
+            return `${data.message || 'Server'} is awake!`;
+          } else {
+            return `${data} is awake!`; 
+          }
+        },
+        error: (error) => {
+          console.log('Toast error handler error:', error);
+          return `Error waking up server: ${error.message || error}`;
+        },
+      });
     }
-  }, [count]);
 
+  }, []);
   return (
     <>
       <div className={`${isDarkMode ? "bg-black text-white" : "bg-white text-black"}`}>

@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaRegComment } from "react-icons/fa";
-import { FaRetweet } from "react-icons/fa6";
-import { FiHeart } from "react-icons/fi";
-import { IoStatsChartSharp } from "react-icons/io5";
-import { IoBookmarksOutline } from "react-icons/io5";
-import { FiShare } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
-import ComposePost from "../../ComposePost";
 import heartpng from "../../../assets/heart.png";
 import { URL } from "../../../../Link";
 import axios from "axios";
@@ -18,17 +11,12 @@ import { toast } from "sonner";
 import { useRef } from "react";
 const ReplieNav = ({ deletePost, post, userProfile, retweetComments }) => {
   const calHeightRef = useRef(null);
-  console.log(retweetComments, "djsjhdjshj");
   const { authUser, postRender, setPostRender } = useMainDashContext();
   const commentCount = post.timeline ? post.timeline.length : 0;
-  console.log(post.timeline.length);
-  console.log(post.author._id == authUser.userId, "fdfdjfjdhh");
   const [likeCount, setLikeCount] = useState(
     post.likes ? post.likes.length : 0
   );
-  const [composeModal, setComposeModal] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
-  const [retweet, setRetweet] = useState(false);
 
   useEffect(() => {
     // Check localStorage for like status
@@ -63,20 +51,6 @@ const ReplieNav = ({ deletePost, post, userProfile, retweetComments }) => {
     postLikes();
   };
 
-  const openComposeModal = () => {
-    setComposeModal(true);
-  };
-
-  useEffect(() => {
-    if (composeModal) {
-      document.body.classList.add("no-scroll");
-    } else {
-      document.body.classList.remove("no-scroll");
-    }
-    return () => {
-      document.body.classList.remove("no-scroll");
-    };
-  }, [composeModal]);
 
   const renderImages = () => {
     const { mediaUrl } = post;
@@ -150,16 +124,6 @@ const ReplieNav = ({ deletePost, post, userProfile, retweetComments }) => {
     return username.split(" ").join("").toLowerCase();
   };
 
-  const RetweetPost = async (postId) => {
-    try {
-      await axios.post(`${URL}/post/${postId}/retweet`, {
-        userId: authUser.userId,
-      });
-      setPostRender(!postRender);
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const renderhrsAgo = (date) => {
     const currentDate = new Date();
@@ -205,6 +169,10 @@ const ReplieNav = ({ deletePost, post, userProfile, retweetComments }) => {
         >
           <div className=" flex items-start   justify-center gap-3 w-full">
             <div className=" flex flex-col items-center gap-2">
+              <div
+                className=" bg-gray-500 w-0.5  absolute   mt-14 "
+                style={{ height: `${(calHeight && calHeight) - 35}px` }}
+              />
               <img
                 src={
                   (post.author && post.author.profilePicture) ||
@@ -213,10 +181,6 @@ const ReplieNav = ({ deletePost, post, userProfile, retweetComments }) => {
                 }
                 className="h-10  w-10 mt-2 rounded-full"
                 alt="profile"
-              />
-              <div
-                className=" bg-gray-500 w-0.5  absolute   mt-14 "
-                style={{ height: `${(calHeight && calHeight) - 35}px` }}
               />
             </div>
             <div className="flex flex-col items-start w-full  justify-center">
@@ -358,23 +322,7 @@ const ReplieNav = ({ deletePost, post, userProfile, retweetComments }) => {
         {/* ))} */}
       </div>
 
-      {composeModal && (
-        <div className="fixed top-0 z-[1] rounded-3xl left-0 w-full h-full bg-[#242d34] bg-opacity-60 flex-col flex items-center justify-start">
-          <div className="relative items-start justify-start w-[50%] py-5 mt-20 flex flex-col bg-black rounded-2xl">
-            <Link
-              to="/home"
-              onClick={() => {
-                setComposeModal(false);
-              }}
-            >
-              <div className="top-3 z-[1] absolute left-3">
-                <IoClose className="text-white text-2xl" />
-              </div>
-            </Link>
-            <ComposePost post={post} />
-          </div>
-        </div>
-      )}
+    
     </>
   );
 };

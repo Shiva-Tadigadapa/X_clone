@@ -202,13 +202,16 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
     const { CreateAccount, otp, maleProfile } = req.body;
     const { email, password, username } = CreateAccount;
-    const profilePicture = maleProfile;
-    console.log(profilePicture)
+    const response = await fetch('https://picsum.photos/1500/500');
+    const coverPhoto = response.url;
+    console.log(coverPhoto && coverPhoto, "bannerUrl")
 
     try {
         // Check if the user already exists by email or username
         const existingUser = await UserModel.findOne({ $or: [{ email }, { username }] });
+        const userCount = await UserModel.countDocuments();
 
+        const profilePicture = `https://i.pravatar.cc/150?img=${userCount + 1}`
         if (existingUser) {
             return res.status(401).json({
                 success: false,
@@ -226,7 +229,7 @@ export const verifyOtp = async (req, res) => {
             const hashedPassword = await bcrypt.hash(password, 10);
             const handle = username.toLowerCase().replace(/ /g, '');
             // Create a new user with hashed password
-            const newUser = new UserModel({ email, password: hashedPassword, username, profilePicture, handle });
+            const newUser = new UserModel({ email, password: hashedPassword, username, profilePicture, handle ,coverPhoto});
             await newUser.save();
 
             // Retrieve the user
