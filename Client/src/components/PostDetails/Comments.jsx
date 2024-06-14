@@ -8,6 +8,7 @@ import { useRef, useEffect, useState } from "react";
 const Comments = ({ post, nested, hiddenData }) => {
   const renderImages = () => {
     const { mediaUrl } = post;
+    // console.log(post, "mediaUrl")
 
     if (!mediaUrl || mediaUrl.length === 0) return null;
 
@@ -77,78 +78,83 @@ const Comments = ({ post, nested, hiddenData }) => {
   const calHeightRef = useRef(null);
   const [calHeight, setCalHeight] = useState(0);
   useEffect(() => {
-    if (calHeightRef.current) {
-      setCalHeight(calHeightRef.current.clientHeight + 12);
+    if (calHeightRef.current) { 
+      setCalHeight(calHeightRef.current.clientHeight -80 );
     }
-  }, [post]);
+  }, [post, nested, hiddenData]);
   // console.log(post, "podsdsdsdsst");
   return (
     <>
       <div
-        className={`flex flex-col border-b  w-full border-[#2f3336] items-start  gap-2 ${
+        className={`flex flex-col h-full     mt-4 w-full items-start  gap-2 ${
           nested && nested ? "px-0 mt-2" : "px-6 py-3"
         }`}
-      >
-        <div className="flex items-start w-full justify-start gap-3">
-          <img
-            src={post.user && post.user.profilePicture}
-            className="h-10 w-10 mt-2 rounded-full"
-            alt="profile"
-          />
-          <div className="flex flex-col items-start justify-center">
-            <div className="items-center flex gap-2">
-              <Link to={`/profile/${post.user && post.user.handle}`}>
-                <h1 className="text-lg font-semibold">
-                  {(post.user && post.user.username) || ""}
-                </h1>
-              </Link>
-              <Link to={`/profile/${(post.user && post.user.handle) || ""}`}>
-                <p className="text-gray-500">
-                  @{(post.user && post.user.handle) || ""}
-                </p>
-              </Link>
+
+        ref={calHeightRef}
+      >      
+      {
+        nested && nested && (
+          <div
+          className={`bg-gray-600  absolute   mt-14  ml-4  w-[2px]`}
+          style={{ height: `${calHeight && calHeight  }px ` }}
+        />
+        )
+      }
+    
+ 
+        <div className="flex mb-5 items-start w-full justify-start gap-3">
+          <div className=" flex items-center flex-col ">
+            <img
+              src={post.user && post.user.profilePicture}
+              className="h-10 w-10 mt-2 rounded-full"
+              alt="profile"
+            />
+          </div>
+          <div className="flex flex-col items-start w-full justify-center">
+            <div className="items-center flex gap-2 w-full   justify-between">
+              <div className=" flex flex-col">
+                <Link to={`/profile/${post.user && post.user.handle}`}>
+                  <h1 className="text-lg font-semibold">
+                    {(post.user && post.user.username) || ""}
+                  </h1>
+                </Link>
+                <Link to={`/profile/${(post.user && post.user.handle) || ""}`}>
+                  <p className="text-gray-500">
+                    @{(post.user && post.user.handle) || ""}
+                  </p>
+                </Link>
+              </div>
+              <p>
+                {new Date(post.createdAt).toLocaleDateString("en-GB", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </p>
             </div>
-            <Link
-              to={{
-                pathname: `/${(post.user && post.user.handle) || ""}/post/${
-                  post._id
-                }`,
-                state: { hiddenData: hiddenData },
-              }}
-            >
+            {nested && nested ? (
               <div>
                 <p className=" text-lg ">{post?.comment}</p>
                 {renderImages()}
               </div>
-            </Link>
+            ) : (
+              <Link
+                to={{
+                  pathname: `/${(post.user && post.user.handle) || ""}/post/${
+                    post._id
+                  }`,
+                  state: { hiddenData: hiddenData },
+                }}
+              >
+                <div>
+                  <p className=" text-lg ">{post?.comment}</p>
+                  {renderImages()}
+                </div>
+              </Link>
+            )}
           </div>
         </div>
-        <div className="text-gray-500 flex   justify-around ml-3 w-full">
-          <button className="flex gap-2 items-center">
-            <FaRegComment />
-            <p>{0}</p>
-          </button>
-          <button className="flex gap-2 items-center">
-            <FaRetweet />
-            <p>10</p>
-          </button>
-          <button className="flex gap-2 items-center">
-            <FiHeart />
-            <p>{0}</p>
-          </button>
-          <button className="flex gap-2 items-center">
-            <IoStatsChartSharp />
-            <p>10</p>
-          </button>
-          <div className="flex gap-4 justify-between">
-            <button className="flex gap-2 items-center">
-              <IoBookmarksOutline />
-            </button>
-            <button className="flex gap-2 items-center">
-              <FiShare />
-            </button>
-          </div>
-        </div>
+        <div className="flex items-center  border-b justify-between  w-full border-gray-700"/>
       </div>
     </>
   );
