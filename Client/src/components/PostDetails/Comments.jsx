@@ -8,6 +8,7 @@ import { useRef, useEffect, useState } from "react";
 const Comments = ({ post, nested, hiddenData }) => {
   const renderImages = () => {
     const { mediaUrl } = post;
+    // console.log(post, "mediaUrl")
 
     if (!mediaUrl || mediaUrl.length === 0) return null;
 
@@ -77,23 +78,30 @@ const Comments = ({ post, nested, hiddenData }) => {
   const calHeightRef = useRef(null);
   const [calHeight, setCalHeight] = useState(0);
   useEffect(() => {
-    if (calHeightRef.current) {
-      setCalHeight(calHeightRef.current.clientHeight + 12);
+    if (calHeightRef.current) { 
+      setCalHeight(calHeightRef.current.clientHeight -80 );
     }
   }, [post, nested, hiddenData]);
   // console.log(post, "podsdsdsdsst");
   return (
     <>
       <div
-        className={`flex flex-col   mt-4 w-full items-start  gap-2 ${
+        className={`flex flex-col h-full     mt-4 w-full items-start  gap-2 ${
           nested && nested ? "px-0 mt-2" : "px-6 py-3"
         }`}
+
         ref={calHeightRef}
-      >
-        <div
-          className={`bg-gray-600 mt-2 top-20 left-14  w-1 z-[100]`}
-          style={{ height: `${(calHeight && calHeight) - 150}px` }}
+      >      
+      {
+        nested && nested && (
+          <div
+          className={`bg-gray-600  absolute   mt-14  ml-4  w-[2px]`}
+          style={{ height: `${calHeight && calHeight  }px ` }}
         />
+        )
+      }
+    
+ 
         <div className="flex mb-5 items-start w-full justify-start gap-3">
           <div className=" flex items-center flex-col ">
             <img
@@ -146,6 +154,7 @@ const Comments = ({ post, nested, hiddenData }) => {
             )}
           </div>
         </div>
+        <div className="flex items-center  border-b justify-between  w-full border-gray-700"/>
       </div>
     </>
   );
