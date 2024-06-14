@@ -178,9 +178,9 @@ const NestedPage = ({
         </div>
         <div className="cal-height pl-12" ref={calHeightRef}>
         <div className={`${firstHiddenData&& firstHiddenData.mediaUrl && firstHiddenData.mediaUrl[0] ?' w-full':' lg:w-[30rem] w-full sm:w-full md:w-full'} mt-1  `}>
-            <div  className=" flex items-center gap-2">
+            <div  className=" flex items-start flex-col gap-2">
 
-            <p className="text-lg mt-2">
+            <p className="text-lg mt-2 whitespace-pre-wrap">
               {(post.parentPostId && post.parentPostId.content) ||
                 (firstHiddenData && firstHiddenData.content)}
             </p>
