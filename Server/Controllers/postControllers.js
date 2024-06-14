@@ -136,10 +136,10 @@ export const getPost = async (req, res) => {
 
 
 export const createComment = async (req, res) => {
-    const { parentCommentId, userId, content, mediaUrl } = req.body;
+    const { parentCommentId, userId, content, images } = req.body;
 
     try {
-        
+         const mediaUrl = images.map((image) => image.url);
         const user = await UserModel.findById(userId);
         if (!content) {
             return res.status(400).json({ success: false, message: "Comment text is required" });
