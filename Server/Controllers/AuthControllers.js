@@ -11,6 +11,8 @@ const client = new OAuth2Client(CLIENT_ID);
 
 export const googleAuth = async (req, res) => {
     const { token } = req.body;
+        const response = await fetch('https://picsum.photos/1500/500');
+        const coverPhoto = response.url;
 
     try {
         // Verify the token
@@ -37,6 +39,7 @@ export const googleAuth = async (req, res) => {
                 handle, // Assign the generated handle
                 email,
                 profilePicture, // Assign the profile picture URL
+                coverPhoto
             });
             user = await user.save();
         }
