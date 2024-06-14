@@ -30,6 +30,16 @@ const MainPostPage = ({
       return `${seconds}s`;
     }
   };
+  const rendertime = (date) => {
+ 
+    const postDate = new Date(date);
+    //format the time  like this 5:40 PM  and date like this Jun 9, 2024
+    const options = {  year: 'numeric', month: 'short', day: 'numeric' };
+    const time = postDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const date1 = postDate.toLocaleDateString('en-US', options);
+    return `${time} . ${date1}`;
+
+  }
   return (
     <>
       <div className="flex w-full items-start flex-col justify-center">
@@ -62,13 +72,32 @@ const MainPostPage = ({
         </div>
         <div className={`${post&& post.mediaUrl && post.mediaUrl[0] ?'  w-full':'  lg:w-[30rem] w-full sm:w-full md:w-full'}   `}>
           <div className="ml-1 ">
-            <p className="text-lg mt-2 ">{post && post.content}</p>
+            <p className="text-lg mt-2 whitespace-pre-wrap">{post && post.content}</p>
             {renderImages(isNested, post, firstHiddenData)}
           </div>
         </div>
       </div>
       <h1 className="text-[17px] tracking-wider text-gray-500 font-medium">
-        5:40 PM . Jun 9, 2024 . 1.1M Views
+     
+        <span> 
+          {
+            rendertime(post.createdAt) 
+          } 
+        </span>
+        <span className="mx-1">.</span>
+        <span className="text-blue-500 cursor-pointer"> 
+            {
+               post && post.views && post.views
+            }{"  "}Views
+            </span> .
+        <span className="text-blue-500 cursor-pointer">
+          {post && post.likes && post.likes.length}{"  "}Likes
+        </span>
+        <span className="mx-1">.</span>
+
+        <span className="text-blue-500 cursor-pointer">
+          {post && post.retweets}{"  "} retweets
+        </span>
       </h1>
     </>
   );
